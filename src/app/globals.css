@@ -707,6 +707,16 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .m-req .stages-mini .s.done { background: var(--m-accent); }
 .m-req .stages-mini .s.cur { background: var(--m-accent); }
 
+/* Pills inside the hero card — override semi-transparent bg that blends with the gradient */
+.m-hero .m-pill {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+.m-hero .m-pill .dot {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 /* Mobile pills */
 .m-pill {
   display: inline-flex; align-items: center; gap: 5px;
