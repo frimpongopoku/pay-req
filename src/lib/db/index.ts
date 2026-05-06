@@ -1,23 +1,20 @@
 import type { IRepository } from './repository';
-import { FirestoreRepository } from './providers/firestore';
 
 let _instance: IRepository | null = null;
 
-/**
- * Returns the active repository implementation.
- * Switch backends by setting DB_PROVIDER env var:
- *   DB_PROVIDER=firestore  (default, current)
- *   DB_PROVIDER=postgres   (future — add PostgresRepository and register it here)
- */
 export function getDb(): IRepository {
   if (_instance) return _instance;
 
   const provider = process.env.DB_PROVIDER ?? 'firestore';
 
-  if (provider === 'firestore') {
+  if (provider === 'postgres') {
+    const { PostgresRepository } = require('./providers/postgres');
+    _instance = new PostgresRepository();
+  } else if (provider === 'firestore') {
+    const { FirestoreRepository } = require('./providers/firestore');
     _instance = new FirestoreRepository();
   } else {
-    throw new Error(`Unknown DB_PROVIDER="${provider}". Supported: firestore`);
+    throw new Error(`Unknown DB_PROVIDER="${provider}". Supported: firestore, postgres`);
   }
 
   return _instance!;
