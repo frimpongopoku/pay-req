@@ -36,6 +36,12 @@ export class FirestoreRepository implements IRepository {
     return toEntity<Organisation>(await fs().collection('orgs').doc(id).get());
   }
 
+  async updateOrg(id: string, patch: Partial<Omit<Organisation, 'id'>>): Promise<Organisation | null> {
+    const ref = fs().collection('orgs').doc(id);
+    await ref.update(patch as FirebaseFirestore.UpdateData<Omit<Organisation, 'id'>>);
+    return toEntity<Organisation>(await ref.get());
+  }
+
   // ── Requests ──────────────────────────────────────────────────────────────
 
   async listRequests(orgId: string, filters?: RequestFilters): Promise<Request[]> {

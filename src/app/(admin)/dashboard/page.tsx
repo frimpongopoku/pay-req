@@ -25,7 +25,7 @@ export default async function DashboardPage() {
     .reduce((sum, r) => sum + r.amount, 0);
 
   const kpis = [
-    { label: 'Open requests',   value: String(open.length),           delta: `${awaitingReview.length} awaiting review`, spark: [4,6,5,7,9,8,11,10,12,11,open.length],  color: 'var(--accent)' },
+    { label: 'Open requests',   value: String(open.length),           delta: `${awaitingReview.length} awaiting review`, spark: [4,6,5,7,9,8,11,10,12,11,open.length],  color: 'var(--brand)' },
     { label: 'Awaiting review', value: String(awaitingReview.length), delta: 'SLA 1.4 d',                                spark: [2,3,2,3,4,4,5,4,5,awaitingReview.length], color: 'var(--warn)' },
     { label: 'Spend (MTD)',     value: `$${spendMTD.toLocaleString()}`, delta: '+12% vs Apr',                            spark: [3,4,5,7,6,8,9,11,12,14,16,18,spendMTD/2000], color: 'var(--info)' },
     { label: 'Total requests',  value: String(requests.length),       delta: `${requests.filter(r=>r.status==='COMPLETED').length} completed`, spark: [3,4,5,5,6,6,7,7,8,requests.length], color: 'var(--good)' },
@@ -147,7 +147,7 @@ export default async function DashboardPage() {
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 500 }}>{a.name}</div>
                     <div style={{ height: 6, marginTop: 6, borderRadius: 3, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
-                      <div style={{ width: (a.n / maxN * 100) + '%', height: '100%', background: 'linear-gradient(90deg, var(--accent), var(--accent-2))', borderRadius: 3 }} />
+                      <div style={{ width: (a.n / maxN * 100) + '%', height: '100%', background: 'linear-gradient(90deg, var(--brand), var(--brand-2))', borderRadius: 3 }} />
                     </div>
                   </div>
                   <div className="muted small num" style={{ fontVariantNumeric: 'tabular-nums' }}>{a.n} reqs</div>

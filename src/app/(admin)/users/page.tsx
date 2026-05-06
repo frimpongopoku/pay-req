@@ -59,8 +59,8 @@ export default async function UsersPage() {
                   <span
                     className="chip"
                     style={{
-                      background: u.role === 'Admin' ? 'var(--accent-soft)' : 'rgba(15,23,42,0.05)',
-                      color: u.role === 'Admin' ? 'var(--accent)' : 'var(--ink-2)',
+                      background: u.role === 'Admin' ? 'var(--brand-soft)' : 'rgba(15,23,42,0.05)',
+                      color: u.role === 'Admin' ? 'var(--brand)' : 'var(--ink-2)',
                       borderColor: 'transparent',
                     }}
                   >
@@ -101,8 +101,8 @@ export default async function UsersPage() {
                       <span
                         className="chip"
                         style={{
-                          background: inv.role === 'Admin' ? 'var(--accent-soft)' : 'rgba(15,23,42,0.05)',
-                          color: inv.role === 'Admin' ? 'var(--accent)' : 'var(--ink-2)',
+                          background: inv.role === 'Admin' ? 'var(--brand-soft)' : 'rgba(15,23,42,0.05)',
+                          color: inv.role === 'Admin' ? 'var(--brand)' : 'var(--ink-2)',
                           borderColor: 'transparent',
                         }}
                       >

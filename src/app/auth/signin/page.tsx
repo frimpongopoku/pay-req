@@ -69,8 +69,8 @@ export default function SignInPage() {
               style={{
                 padding: '14px 12px',
                 borderRadius: 12,
-                border: `2px solid ${intent === 'admin' ? 'var(--accent)' : 'var(--glass-border)'}`,
-                background: intent === 'admin' ? 'var(--accent-soft)' : 'rgba(255,255,255,0.6)',
+                border: `2px solid ${intent === 'admin' ? 'var(--brand)' : 'var(--glass-border)'}`,
+                background: intent === 'admin' ? 'var(--brand-soft)' : 'rgba(255,255,255,0.6)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 transition: 'all 0.15s',
@@ -89,8 +89,8 @@ export default function SignInPage() {
               style={{
                 padding: '14px 12px',
                 borderRadius: 12,
-                border: `2px solid ${intent === 'employee' ? 'var(--accent)' : 'var(--glass-border)'}`,
-                background: intent === 'employee' ? 'var(--accent-soft)' : 'rgba(255,255,255,0.6)',
+                border: `2px solid ${intent === 'employee' ? 'var(--brand)' : 'var(--glass-border)'}`,
+                background: intent === 'employee' ? 'var(--brand-soft)' : 'rgba(255,255,255,0.6)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 transition: 'all 0.15s',

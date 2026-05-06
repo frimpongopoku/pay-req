@@ -23,6 +23,7 @@ export async function createRequest(formData: FormData) {
   const deadline          = formData.get('deadline') as string;
   const payee             = (formData.get('payee') as string).trim();
   const purpose           = (formData.get('purpose') as string).trim();
+  const currency          = (formData.get('currency') as string | null)?.trim() || 'GHS';
   const additionalDetails = (formData.get('additionalDetails') as string | null)?.trim() || undefined;
   const attachments       = formData.getAll('attachments').filter(Boolean) as string[];
 
@@ -40,7 +41,7 @@ export async function createRequest(formData: FormData) {
     asset: assetId,
     title,
     amount,
-    currency: 'USD',
+    currency,
     requester: user.name,
     requesterUid: user.id,
     status: 'SUBMITTED',

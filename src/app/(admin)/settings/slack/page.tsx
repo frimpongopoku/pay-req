@@ -140,7 +140,7 @@ export default function SlackSettingsPage() {
                 <td className="small">{a.managers.join(', ')}</td>
                 <td>
                   {a.slack
-                    ? <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5, color: 'var(--accent)' }}>{a.slack}</span>
+                    ? <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5, color: 'var(--brand)' }}>{a.slack}</span>
                     : <span className="muted small">↳ #ops-requests <i>(default)</i></span>}
                 </td>
                 <td>

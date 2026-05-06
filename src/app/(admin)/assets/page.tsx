@@ -2,6 +2,14 @@ import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { I } from '@/components/ui/icons';
 import { CreateAssetModal } from './_components/CreateAssetModal';
+import type { AssetType } from '@/lib/db/types';
+
+const TYPE_ICON: Record<AssetType, keyof typeof I> = {
+  car: 'car', building: 'building', device: 'device', machine: 'machine', other: 'package',
+};
+const TYPE_COLOR: Record<AssetType, string> = {
+  car: '#6366f1', building: '#0ea5e9', device: '#8b5cf6', machine: '#f59e0b', other: '#64748b',
+};
 
 export default async function AssetsPage() {
   const db = getDb();
@@ -13,7 +21,7 @@ export default async function AssetsPage() {
     db.listUsers(orgId),
   ]);
   const managers = users
-    .filter((u) => u.role === 'Admin' || u.role === 'Manager')
+    .filter((u) => u.role === 'Manager')
     .map((u) => ({ id: u.id, name: u.name, role: u.role }));
 
   const stats = Object.fromEntries(
@@ -44,12 +52,22 @@ export default async function AssetsPage() {
           return (
             <div key={a.id} className="card glass asset-card" style={{ animationDelay: `${i * 45}ms` }}>
               <div className="row" style={{ gap: 12, marginBottom: 12 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg,#cbd5e1,#64748b)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0 }}>
-                  {I.truck}
+                <div style={{
+                  width: 40, height: 40, borderRadius: 10,
+                  background: `linear-gradient(135deg, ${TYPE_COLOR[a.type ?? 'other']}22, ${TYPE_COLOR[a.type ?? 'other']}44)`,
+                  border: `1px solid ${TYPE_COLOR[a.type ?? 'other']}30`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: TYPE_COLOR[a.type ?? 'other'], flexShrink: 0,
+                }}>
+                  {I[TYPE_ICON[a.type ?? 'other']]}
                 </div>
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontWeight: 500 }}>{a.name}</div>
-                  <div className="muted small">{a.tag}</div>
+                  <div className="row" style={{ gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
+                    {a.tag && <span className="chip" style={{ fontSize: 11 }}>{a.tag}</span>}
+                    <span className="chip" style={{ fontSize: 11, textTransform: 'capitalize' }}>{a.type ?? 'other'}</span>
+                    {a.tags?.map(t => <span key={t} className="chip" style={{ fontSize: 11, background: 'var(--brand-soft)', color: 'var(--brand)', borderColor: 'rgba(99,102,241,0.2)' }}>{t}</span>)}
+                  </div>
                 </div>
                 <button className="btn ghost" style={{ padding: 4 }}>{I.more}</button>
               </div>
@@ -58,7 +76,7 @@ export default async function AssetsPage() {
                 <div style={{ textAlign: 'right' }}>{a.managers.join(', ')}</div>
                 <div className="muted">Slack</div>
                 <div style={{ textAlign: 'right', fontFamily: 'ui-monospace, monospace', fontSize: 12 }}>
-                  {a.slack ?? <span className="muted" style={{ fontFamily: 'inherit' }}>default</span>}
+                  {a.slack ? `#${a.slack}` : <span className="muted" style={{ fontFamily: 'inherit' }}>default</span>}
                 </div>
                 <div className="muted">Open requests</div>
                 <div style={{ textAlign: 'right', fontWeight: 500 }}>{s.open}</div>

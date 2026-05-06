@@ -9,7 +9,7 @@ interface SparkProps {
   fill?: boolean;
 }
 
-export function Spark({ data, w = 110, h = 36, color = 'var(--accent)', fill = true }: SparkProps) {
+export function Spark({ data, w = 110, h = 36, color = 'var(--brand)', fill = true }: SparkProps) {
   const id = useId();
   const max = Math.max(...data), min = Math.min(...data);
   const range = max - min || 1;

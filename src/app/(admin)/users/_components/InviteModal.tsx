@@ -123,12 +123,12 @@ function InviteModal({ orgName, onClose }: { orgName: string; onClose: () => voi
                   style={{
                     padding: '10px 8px',
                     borderRadius: 10,
-                    border: `2px solid ${role === r ? 'var(--accent)' : 'var(--glass-border)'}`,
-                    background: role === r ? 'var(--accent-soft)' : 'rgba(255,255,255,0.5)',
+                    border: `2px solid ${role === r ? 'var(--brand)' : 'var(--glass-border)'}`,
+                    background: role === r ? 'var(--brand-soft)' : 'rgba(255,255,255,0.5)',
                     cursor: 'pointer',
                     fontSize: 13,
                     fontWeight: role === r ? 600 : 400,
-                    color: role === r ? 'var(--accent)' : 'var(--ink-1)',
+                    color: role === r ? 'var(--brand)' : 'var(--ink-1)',
                     transition: 'all 0.15s',
                   }}
                 >

@@ -1,43 +1,66 @@
 'use client';
 import { useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
+import { format } from 'date-fns';
 import { MI } from '@/components/ui/icons';
-import { FileUpload } from '@/components/ui/FileUpload';
+import { FileUpload, type FileUploadHandle } from '@/components/ui/FileUpload';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { submitRequest } from '../actions';
 import type { Asset } from '@/lib/db';
 
-export function CreateForm({ assets }: { assets: Asset[] }) {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState('');
-  const [priority, setPriority] = useState<'low' | 'med' | 'high'>('med');
+interface Props {
+  assets: Asset[];
+  vendors: string[];
+  currency: string;
+}
 
-  function handleSubmit(e: React.FormEvent) {
+export function CreateForm({ assets, vendors, currency }: Props) {
+  const formRef    = useRef<HTMLFormElement>(null);
+  const fileRef    = useRef<FileUploadHandle>(null);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError]       = useState('');
+  const [priority, setPriority] = useState<'low' | 'med' | 'high'>('med');
+  const [assetId, setAssetId]   = useState('');
+  const [deadline, setDeadline] = useState<Date | undefined>(undefined);
+
+  const fieldStyle: React.CSSProperties = {
+    width: '100%', padding: '12px 14px', borderRadius: 14,
+    border: '1px solid var(--m-line)', background: 'var(--m-glass-2)',
+    fontSize: 14, fontFamily: 'inherit', color: 'var(--m-ink-1)',
+    boxSizing: 'border-box',
+  };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!formRef.current) return;
+    setError('');
+
     const data = new FormData(formRef.current);
     data.set('priority', priority);
-    setError('');
+    data.set('asset', assetId);
+    data.set('currency', currency);
+    if (deadline) data.set('deadline', format(deadline, 'yyyy-MM-dd'));
+
     startTransition(async () => {
       try {
+        // Upload files at submit time, not at selection time
+        const urls = fileRef.current ? await fileRef.current.uploadAll() : [];
+        urls.forEach(url => data.append('attachments', url));
         await submitRequest(data);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to submit. Try again.');
       }
     });
   }
-
-  const fieldStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '12px 14px',
-    borderRadius: 14,
-    border: '1px solid var(--m-line)',
-    background: 'var(--m-glass-2)',
-    fontSize: 14,
-    fontFamily: 'inherit',
-    color: 'var(--m-ink-1)',
-    boxSizing: 'border-box',
-  };
 
   return (
     <>
@@ -50,29 +73,41 @@ export function CreateForm({ assets }: { assets: Asset[] }) {
       </div>
 
       <form ref={formRef} onSubmit={handleSubmit}>
+        {/* Asset */}
         <div className="m-form-field">
-          <label htmlFor="asset">Asset</label>
-          <select id="asset" name="asset" required style={{ ...fieldStyle, appearance: 'none' }}>
-            <option value="">Select an asset…</option>
-            {assets.map(a => (
-              <option key={a.id} value={a.id}>{a.name}</option>
-            ))}
-          </select>
+          <label>Asset</label>
+          <Select value={assetId} onValueChange={setAssetId} required>
+            <SelectTrigger className="m-select-trigger">
+              <SelectValue placeholder="Select an asset…" />
+            </SelectTrigger>
+            <SelectContent>
+              {assets.map(a => (
+                <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
+        {/* Title */}
         <div className="m-form-field">
           <label htmlFor="title">What do you need?</label>
           <input id="title" name="title" required placeholder="e.g. Brake pad replacement" style={fieldStyle} />
         </div>
 
+        {/* Amount */}
         <div className="m-form-field">
-          <label htmlFor="amount">Amount (USD)</label>
+          <label htmlFor="amount">Amount ({currency})</label>
           <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--m-ink-2)', fontSize: 14 }}>$</span>
-            <input id="amount" name="amount" type="number" min="0.01" step="0.01" required placeholder="0.00" style={{ ...fieldStyle, paddingLeft: 26 }} />
+            <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--m-ink-3)', fontSize: 12, fontWeight: 600 }}>{currency}</span>
+            <input
+              id="amount" name="amount" type="number" min="0.01" step="0.01" required
+              placeholder="0.00"
+              style={{ ...fieldStyle, paddingLeft: currency.length * 8 + 18 }}
+            />
           </div>
         </div>
 
+        {/* Priority */}
         <div className="m-form-field">
           <label>Priority</label>
           <div className="seg">
@@ -84,24 +119,60 @@ export function CreateForm({ assets }: { assets: Asset[] }) {
           </div>
         </div>
 
+        {/* Deadline */}
         <div className="m-form-field">
-          <label htmlFor="deadline">Need it by</label>
-          <input id="deadline" name="deadline" type="date" required min={new Date().toISOString().split('T')[0]} style={fieldStyle} />
+          <label>Need it by</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" className="m-date-trigger">
+                {MI.cal}
+                <span style={{ flex: 1, textAlign: 'left', color: deadline ? 'var(--m-ink-0)' : 'var(--m-ink-3)' }}>
+                  {deadline ? format(deadline, 'MMM d, yyyy') : 'Pick a date…'}
+                </span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start" side="top">
+              <Calendar mode="single" selected={deadline} onSelect={setDeadline} disabled={(d) => d < today} initialFocus />
+            </PopoverContent>
+          </Popover>
+          <input type="hidden" name="deadline" value={deadline ? format(deadline, 'yyyy-MM-dd') : ''} readOnly />
         </div>
 
+        {/* Payee with vendor suggestions */}
         <div className="m-form-field">
           <label htmlFor="payee">Payee / Vendor</label>
-          <input id="payee" name="payee" required placeholder="e.g. Eastside Diesel LLC" style={fieldStyle} />
+          {vendors.length > 0 && (
+            <datalist id="vendors-list">
+              {vendors.map(v => <option key={v} value={v} />)}
+            </datalist>
+          )}
+          <input
+            id="payee" name="payee" required
+            placeholder="e.g. Eastside Diesel LLC"
+            list={vendors.length > 0 ? 'vendors-list' : undefined}
+            style={fieldStyle}
+          />
+          {vendors.length > 0 && (
+            <div style={{ fontSize: 11.5, color: 'var(--m-ink-3)', marginTop: 4 }}>
+              Tap to see your previously used vendors
+            </div>
+          )}
         </div>
 
+        {/* Purpose */}
         <div className="m-form-field">
           <label htmlFor="purpose">Purpose</label>
-          <textarea id="purpose" name="purpose" required rows={4} placeholder="Describe why this payment is needed…" style={{ ...fieldStyle, resize: 'none' }} />
+          <textarea
+            id="purpose" name="purpose" required rows={4}
+            placeholder="Describe why this payment is needed…"
+            style={{ ...fieldStyle, resize: 'none' }}
+          />
         </div>
 
+        {/* Attachments — deferred: preview only, uploads on submit */}
         <div className="m-form-field">
           <label>Attachments <span style={{ opacity: 0.55, fontSize: 12 }}>(optional)</span></label>
-          <FileUpload inputName="attachments" variant="mobile" />
+          <FileUpload ref={fileRef} variant="mobile" deferred />
         </div>
 
         {error && (

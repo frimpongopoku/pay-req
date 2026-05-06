@@ -23,6 +23,7 @@ export async function submitRequest(formData: FormData) {
   const deadline    = formData.get('deadline') as string;
   const payee       = (formData.get('payee') as string).trim();
   const purpose     = (formData.get('purpose') as string).trim();
+  const currency    = (formData.get('currency') as string | null)?.trim() || 'GHS';
   const attachments = formData.getAll('attachments').filter(Boolean) as string[];
 
   if (!assetId || !title || isNaN(amount) || !deadline || !payee || !purpose) {
@@ -37,7 +38,7 @@ export async function submitRequest(formData: FormData) {
     asset: assetId,
     title,
     amount,
-    currency: 'USD',
+    currency,
     requester: user.name,
     requesterUid: user.id,
     status: 'SUBMITTED',

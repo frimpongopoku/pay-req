@@ -12,14 +12,14 @@ export interface ActivityItem {
 }
 
 export const ASSETS: Omit<Asset, 'orgId'>[] = [
-  { id: 'a1', name: 'Truck 042 — Freightliner M2', tag: 'East depot', managers: ['Maya Patel'], slack: '#fleet-east' },
-  { id: 'a2', name: 'Van 117 — Mercedes Sprinter', tag: 'Last-mile', managers: ['Maya Patel'], slack: '#fleet-east' },
-  { id: 'a3', name: 'Truck 028 — Volvo VNL', tag: 'Long-haul', managers: ['Diego Romero'], slack: '#fleet-haul' },
-  { id: 'a4', name: 'Van 089 — Ford Transit', tag: 'Last-mile', managers: ['Maya Patel'], slack: null },
-  { id: 'a5', name: 'Truck 051 — Kenworth T680', tag: 'Long-haul', managers: ['Diego Romero', 'Sam Whitt'], slack: '#fleet-haul' },
-  { id: 'a6', name: 'Trailer 14 — Reefer 53ft', tag: 'Cold-chain', managers: ['Sam Whitt'], slack: '#fleet-cold' },
-  { id: 'a7', name: 'Yard tractor — TICO Pro-Spotter', tag: 'Yard', managers: ['Maya Patel'], slack: null },
-  { id: 'a8', name: 'Box truck 003 — Isuzu NPR', tag: 'Local', managers: ['Maya Patel'], slack: '#fleet-east' },
+  { id: 'a1', name: 'Truck 042 — Freightliner M2', tag: 'East depot', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#fleet-east' },
+  { id: 'a2', name: 'Van 117 — Mercedes Sprinter', tag: 'Last-mile', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#fleet-east' },
+  { id: 'a3', name: 'Truck 028 — Volvo VNL', tag: 'Long-haul', type: 'car', details: {}, tags: [], managers: ['Diego Romero'], slack: '#fleet-haul' },
+  { id: 'a4', name: 'Van 089 — Ford Transit', tag: 'Last-mile', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: null },
+  { id: 'a5', name: 'Truck 051 — Kenworth T680', tag: 'Long-haul', type: 'car', details: {}, tags: [], managers: ['Diego Romero', 'Sam Whitt'], slack: '#fleet-haul' },
+  { id: 'a6', name: 'Trailer 14 — Reefer 53ft', tag: 'Cold-chain', type: 'machine', details: {}, tags: [], managers: ['Sam Whitt'], slack: '#fleet-cold' },
+  { id: 'a7', name: 'Yard tractor — TICO Pro-Spotter', tag: 'Yard', type: 'machine', details: {}, tags: [], managers: ['Maya Patel'], slack: null },
+  { id: 'a8', name: 'Box truck 003 — Isuzu NPR', tag: 'Local', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#fleet-east' },
 ];
 
 export const REQUESTS: Omit<Request, 'orgId'>[] = [
@@ -86,7 +86,7 @@ export const ACTIVITY: ActivityItem[] = [
 ];
 
 export const KPIS: KPI[] = [
-  { label: 'Open requests',   value: '14',     delta: '+3 this wk', spark: [4,6,5,7,9,8,11,10,12,11,14], color: 'var(--accent)' },
+  { label: 'Open requests',   value: '14',     delta: '+3 this wk', spark: [4,6,5,7,9,8,11,10,12,11,14], color: 'var(--brand)' },
   { label: 'Awaiting review', value: '5',      delta: 'SLA 1.4 d',  spark: [2,3,2,3,4,4,5,4,5,5],       color: 'var(--warn)' },
   { label: 'Spend (MTD)',     value: '$28,410', delta: '+12% vs Apr', spark: [3,4,5,7,6,8,9,11,12,14,16,18,22,24,28], color: 'var(--info)' },
   { label: 'Avg cycle time',  value: '2.6 d',  delta: '−0.4 d', down: false, spark: [3.4,3.2,3.0,2.9,2.8,2.7,2.6], color: 'var(--good)' },

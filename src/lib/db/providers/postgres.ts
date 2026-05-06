@@ -1,16 +1,22 @@
 import postgres from 'postgres';
 import type { IRepository } from '../repository';
-import type { Asset, Request, RequestFilters, ActivityItem, User, Organisation, Invite } from '../types';
+import type { Asset, AssetType, Request, RequestFilters, ActivityItem, User, Organisation, Invite } from '../types';
 
-let _sql: ReturnType<typeof postgres> | null = null;
+// In dev, HMR re-evaluates this module on every change, creating a new pool
+// each time and exhausting Postgres's max_connections. Stash the pool on the
+// global object so it survives module re-evaluation.
+declare global {
+  // eslint-disable-next-line no-var
+  var __pgPool: ReturnType<typeof postgres> | undefined;
+}
 
 function db() {
-  if (!_sql) {
+  if (!global.__pgPool) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error('DATABASE_URL is not configured.');
-    _sql = postgres(url);
+    global.__pgPool = postgres(url, { max: 10, idle_timeout: 20 });
   }
-  return _sql;
+  return global.__pgPool;
 }
 
 function relativeTime(date: Date): string {
@@ -30,7 +36,7 @@ const REQUEST_COL: Record<string, string> = {
   orgId: 'org_id', requesterUid: 'requester_uid',
   submittedAt: 'submitted_at', additionalDetails: 'additional_details',
 };
-const ASSET_COL: Record<string, string> = { orgId: 'org_id' };
+const ASSET_COL: Record<string, string> = { orgId: 'org_id', details: 'details', tags: 'tags' };
 const USER_COL: Record<string, string> = { orgId: 'org_id' };
 
 function toSnake(obj: Record<string, unknown>, map: Record<string, string>) {
@@ -44,7 +50,7 @@ function toSnake(obj: Record<string, unknown>, map: Record<string, string>) {
 // Row → domain type
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function rowToOrg(r: any): Organisation {
-  return { id: r.id, name: r.name, ownerUid: r.owner_uid, createdAt: r.created_at };
+  return { id: r.id, name: r.name, ownerUid: r.owner_uid, createdAt: r.created_at, currency: r.currency ?? 'GHS' };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function rowToUser(r: any): User {
@@ -55,7 +61,13 @@ function rowToUser(r: any): User {
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function rowToAsset(r: any): Asset {
-  return { id: r.id, orgId: r.org_id, name: r.name, tag: r.tag, managers: r.managers ?? [], slack: r.slack ?? null };
+  return {
+    id: r.id, orgId: r.org_id, name: r.name, tag: r.tag,
+    type: (r.type ?? 'other') as AssetType,
+    details: r.details ?? {},
+    tags: r.tags ?? [],
+    managers: r.managers ?? [], slack: r.slack ?? null,
+  };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function rowToRequest(r: any): Request {
@@ -88,16 +100,25 @@ export class PostgresRepository implements IRepository {
 
   async createOrg(data: Omit<Organisation, 'id'>): Promise<Organisation> {
     const id = crypto.randomUUID();
+    const currency = data.currency ?? 'GHS';
     await db()`
-      INSERT INTO organisations (id, name, owner_uid, created_at)
-      VALUES (${id}, ${data.name}, ${data.ownerUid}, ${data.createdAt})
+      INSERT INTO organisations (id, name, owner_uid, created_at, currency)
+      VALUES (${id}, ${data.name}, ${data.ownerUid}, ${data.createdAt}, ${currency})
     `;
-    return { id, ...data };
+    return { id, ...data, currency };
   }
 
   async getOrg(id: string): Promise<Organisation | null> {
     const rows = await db()`SELECT * FROM organisations WHERE id = ${id}`;
     return rows.length ? rowToOrg(rows[0]) : null;
+  }
+
+  async updateOrg(id: string, patch: Partial<Omit<Organisation, 'id'>>): Promise<Organisation | null> {
+    const ORG_COL: Record<string, string> = { ownerUid: 'owner_uid', createdAt: 'created_at' };
+    const mapped = toSnake(patch as Record<string, unknown>, ORG_COL);
+    if (!Object.keys(mapped).length) return this.getOrg(id);
+    await db()`UPDATE organisations SET ${db()(mapped)} WHERE id = ${id}`;
+    return this.getOrg(id);
   }
 
   // ── Requests ──────────────────────────────────────────────────────────────
@@ -198,14 +219,23 @@ export class PostgresRepository implements IRepository {
   async createAsset(data: Omit<Asset, 'id'>): Promise<Asset> {
     const id = crypto.randomUUID();
     await db()`
-      INSERT INTO assets (id, org_id, name, tag, managers, slack)
-      VALUES (${id}, ${data.orgId}, ${data.name}, ${data.tag}, ${data.managers}, ${data.slack ?? null})
+      INSERT INTO assets (id, org_id, name, tag, type, details, tags, managers, slack)
+      VALUES (
+        ${id}, ${data.orgId}, ${data.name}, ${data.tag},
+        ${data.type ?? 'other'},
+        ${db().json(data.details ?? {} as unknown as never)},
+        ${data.tags ?? []},
+        ${data.managers}, ${data.slack ?? null}
+      )
     `;
     return { id, ...data };
   }
 
   async updateAsset(id: string, patch: Partial<Omit<Asset, 'id'>>): Promise<Asset | null> {
-    const mapped = toSnake(patch as Record<string, unknown>, ASSET_COL);
+    const raw = patch as Record<string, unknown>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (raw.details) raw.details = db().json(raw.details as any);
+    const mapped = toSnake(raw, ASSET_COL);
     if (!Object.keys(mapped).length) return this.getAsset(id);
     await db()`UPDATE assets SET ${db()(mapped)} WHERE id = ${id}`;
     return this.getAsset(id);
@@ -213,10 +243,17 @@ export class PostgresRepository implements IRepository {
 
   async upsertAsset(id: string, data: Omit<Asset, 'id'>): Promise<Asset> {
     await db()`
-      INSERT INTO assets (id, org_id, name, tag, managers, slack)
-      VALUES (${id}, ${data.orgId}, ${data.name}, ${data.tag}, ${data.managers}, ${data.slack ?? null})
+      INSERT INTO assets (id, org_id, name, tag, type, details, tags, managers, slack)
+      VALUES (
+        ${id}, ${data.orgId}, ${data.name}, ${data.tag},
+        ${data.type ?? 'other'},
+        ${db().json(data.details ?? {} as unknown as never)},
+        ${data.tags ?? []},
+        ${data.managers}, ${data.slack ?? null}
+      )
       ON CONFLICT (id) DO UPDATE SET
         org_id = EXCLUDED.org_id, name = EXCLUDED.name, tag = EXCLUDED.tag,
+        type = EXCLUDED.type, details = EXCLUDED.details, tags = EXCLUDED.tags,
         managers = EXCLUDED.managers, slack = EXCLUDED.slack
     `;
     return { id, ...data };

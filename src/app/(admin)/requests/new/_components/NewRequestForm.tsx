@@ -1,39 +1,57 @@
 'use client';
 import { useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
+import { format } from 'date-fns';
 import type { Asset } from '@/lib/db';
 import { I } from '@/components/ui/icons';
-import { FileUpload } from '@/components/ui/FileUpload';
+import { FileUpload, type FileUploadHandle } from '@/components/ui/FileUpload';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { createRequest } from '../actions';
 
-interface Props { assets: Asset[] }
+interface Props { assets: Asset[]; vendors: string[]; currency: string; }
 
-export function NewRequestForm({ assets }: Props) {
-  const formRef = useRef<HTMLFormElement>(null);
+export function NewRequestForm({ assets, vendors, currency }: Props) {
+  const formRef  = useRef<HTMLFormElement>(null);
+  const fileRef  = useRef<FileUploadHandle>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [selectedAssetId, setSelectedAssetId] = useState(assets[0]?.id ?? '');
+  const [deadline, setDeadline] = useState<Date | undefined>(undefined);
+  const [priority, setPriority] = useState<'low' | 'med' | 'high'>('med');
 
   const selectedAsset = assets.find(a => a.id === selectedAssetId);
-  const deadline = formRef.current
-    ? (formRef.current.elements.namedItem('deadline') as HTMLInputElement)?.value
-    : '';
   const deadlineDays = deadline
-    ? Math.ceil((new Date(deadline).getTime() - Date.now()) / 86_400_000)
+    ? Math.ceil((deadline.getTime() - Date.now()) / 86_400_000)
     : null;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!formRef.current) return;
     setError('');
+    const data = new FormData(formRef.current);
+    if (deadline) data.set('deadline', format(deadline, 'yyyy-MM-dd'));
+    data.set('asset', selectedAssetId);
+    data.set('priority', priority);
+    data.set('currency', currency);
     startTransition(async () => {
       try {
-        await createRequest(new FormData(formRef.current!));
+        const urls = fileRef.current ? await fileRef.current.uploadAll() : [];
+        urls.forEach(url => data.append('attachments', url));
+        await createRequest(data);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to submit.');
       }
     });
   }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   return (
     <div className="page">
@@ -67,18 +85,45 @@ export function NewRequestForm({ assets }: Props) {
             </div>
 
             <div className="grid g-2" style={{ gap: 14 }}>
+              {/* Asset select */}
               <div className="field">
                 <label>Asset</label>
-                <select name="asset" value={selectedAssetId} onChange={e => setSelectedAssetId(e.target.value)} required>
-                  {assets.map(a => (
-                    <option key={a.id} value={a.id}>{a.name}</option>
-                  ))}
-                </select>
+                <Select value={selectedAssetId} onValueChange={setSelectedAssetId} required>
+                  <SelectTrigger className="field-select-trigger">
+                    <SelectValue placeholder="Select an asset…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assets.map(a => (
+                      <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
+              {/* Date picker */}
               <div className="field">
                 <label>Need it by</label>
-                <input type="date" name="deadline" required min={new Date().toISOString().split('T')[0]} />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button type="button" className="field-date-trigger">
+                      {I.cal}
+                      <span style={{ flex: 1, textAlign: 'left', color: deadline ? 'var(--ink-0)' : 'var(--ink-3)' }}>
+                        {deadline ? format(deadline, 'MMM d, yyyy') : 'Pick a date…'}
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={deadline}
+                      onSelect={setDeadline}
+                      disabled={(d) => d < today}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                {/* hidden input so FormData still has deadline if JS-populated */}
+                <input type="hidden" name="deadline" value={deadline ? format(deadline, 'yyyy-MM-dd') : ''} readOnly />
               </div>
 
               <div className="field">
@@ -88,21 +133,36 @@ export function NewRequestForm({ assets }: Props) {
 
               <div className="field">
                 <label>Payee</label>
-                <input type="text" name="payee" required placeholder="e.g. Eastside Diesel LLC" />
+                {vendors.length > 0 && (
+                  <datalist id="admin-vendors-list">
+                    {vendors.map(v => <option key={v} value={v} />)}
+                  </datalist>
+                )}
+                <input
+                  type="text" name="payee" required
+                  placeholder="e.g. Eastside Diesel LLC"
+                  list={vendors.length > 0 ? 'admin-vendors-list' : undefined}
+                />
               </div>
 
               <div className="field">
-                <label>Amount (USD)</label>
+                <label>Amount ({currency})</label>
                 <input type="number" name="amount" required min={0.01} step={0.01} placeholder="0.00" />
               </div>
 
+              {/* Priority select */}
               <div className="field">
                 <label>Priority</label>
-                <select name="priority" defaultValue="med">
-                  <option value="low">Low</option>
-                  <option value="med">Medium</option>
-                  <option value="high">High</option>
-                </select>
+                <Select value={priority} onValueChange={(v) => setPriority(v as 'low' | 'med' | 'high')}>
+                  <SelectTrigger className="field-select-trigger">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="med">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -118,7 +178,7 @@ export function NewRequestForm({ assets }: Props) {
 
             <div style={{ marginTop: 14 }}>
               <div className="muted small" style={{ marginBottom: 8 }}>Attachments <span style={{ marginLeft: 4, opacity: 0.6 }}>(optional)</span></div>
-              <FileUpload inputName="attachments" />
+              <FileUpload ref={fileRef} inputName="attachments" deferred />
             </div>
           </div>
 

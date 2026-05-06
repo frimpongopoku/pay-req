@@ -17,6 +17,7 @@ export async function createOrganisation(formData: FormData) {
     name,
     ownerUid: user.id,
     createdAt: new Date().toISOString(),
+    currency: 'GHS',
   });
 
   await db.upsertUser(user.id, {

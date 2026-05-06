@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import type { AssetType } from '@/lib/db/types';
 
 export async function createAsset(formData: FormData) {
   const user = await getSessionUser();
@@ -11,18 +12,27 @@ export async function createAsset(formData: FormData) {
   const name = String(formData.get('name') ?? '').trim();
   const tag = String(formData.get('tag') ?? '').trim();
   const slackRaw = String(formData.get('slack') ?? '').trim();
+  const type = (String(formData.get('type') ?? 'other').trim() || 'other') as AssetType;
   const managers = formData
     .getAll('managers')
     .map(v => String(v).trim())
     .filter(Boolean);
 
+  let details: Record<string, string> = {};
+  try { details = JSON.parse(String(formData.get('details') ?? '{}')); } catch { details = {}; }
+
+  let tags: string[] = [];
+  try { tags = JSON.parse(String(formData.get('tags') ?? '[]')); } catch { tags = []; }
+
   if (!name) return { ok: false, error: 'Asset name is required.' };
-  if (!managers.length) return { ok: false, error: 'Select at least one manager.' };
 
   await getDb().createAsset({
     orgId: user.orgId,
     name,
     tag,
+    type,
+    details,
+    tags,
     managers,
     slack: slackRaw || null,
   });

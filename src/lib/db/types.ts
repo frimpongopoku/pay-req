@@ -1,4 +1,5 @@
 export type AssetStatus = 'active' | 'inactive';
+export type AssetType = 'car' | 'building' | 'device' | 'machine' | 'other';
 export type RequestStatus =
   | 'SUBMITTED'
   | 'UNDER_REVIEW'
@@ -14,6 +15,9 @@ export interface Asset {
   orgId: string;
   name: string;
   tag: string;
+  type: AssetType;
+  details: Record<string, string>;
+  tags: string[];
   managers: string[];
   slack: string | null;
 }
@@ -53,6 +57,7 @@ export interface Organisation {
   name: string;
   ownerUid: string;
   createdAt: string;
+  currency: string;
 }
 
 export interface Invite {

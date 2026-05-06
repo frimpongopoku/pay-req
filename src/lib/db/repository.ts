@@ -10,6 +10,7 @@ export interface IRepository {
   // ── Organisations ─────────────────────────────────────────────────────────
   createOrg(data: Omit<Organisation, 'id'>): Promise<Organisation>;
   getOrg(id: string): Promise<Organisation | null>;
+  updateOrg(id: string, patch: Partial<Omit<Organisation, 'id'>>): Promise<Organisation | null>;
 
   // ── Requests ──────────────────────────────────────────────────────────────
   listRequests(orgId: string, filters?: RequestFilters): Promise<Request[]>;

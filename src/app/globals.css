@@ -12,9 +12,9 @@
   --ink-3: #94a3b8;
   --line: rgba(15, 23, 42, 0.08);
   --line-strong: rgba(15, 23, 42, 0.14);
-  --accent: #6366f1;
-  --accent-2: #8b5cf6;
-  --accent-soft: rgba(99, 102, 241, 0.10);
+  --brand: #6366f1;
+  --brand-2: #8b5cf6;
+  --brand-soft: rgba(99, 102, 241, 0.10);
   --good: #16a34a;
   --warn: #f59e0b;
   --bad: #ef4444;
@@ -51,6 +51,30 @@
   --m-glass: rgba(255, 252, 247, 0.72);
   --m-glass-2: rgba(255, 252, 247, 0.55);
   --m-glass-border: rgba(255, 255, 255, 0.85);
+}
+
+/* ─── shadcn/ui CSS vars (HSL channels) ─── */
+:root {
+  --background: 210 40% 96%;      /* slate-100 #f1f5f9 */
+  --foreground: 222 47% 11%;      /* slate-900 #0f172a */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 239 84% 67%;         /* indigo #6366f1 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 215 19% 35%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 240 5% 96%;           /* light hover */
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 32% 87%;
+  --input: 214 32% 87%;
+  --ring: 239 84% 67%;
+  --radius: 0.5rem;
 }
 
 * { box-sizing: border-box; }
@@ -143,7 +167,7 @@ body {
 }
 .brand-mark {
   width: 32px; height: 32px; border-radius: 9px;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
   position: relative;
   box-shadow: 0 4px 14px -2px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.6);
   flex-shrink: 0;
@@ -180,14 +204,14 @@ body {
   color: var(--ink-0); font-weight: 500;
 }
 .nav-item .ic { width: 16px; height: 16px; color: var(--ink-2); flex-shrink: 0; }
-.nav-item.active .ic { color: var(--accent); }
+.nav-item.active .ic { color: var(--brand); }
 .nav-item .count {
   margin-left: auto; font-size: 11px;
   background: rgba(15,23,42,0.06); color: var(--ink-2);
   padding: 1px 7px; border-radius: 999px;
   font-variant-numeric: tabular-nums;
 }
-.nav-item.active .count { background: var(--accent-soft); color: var(--accent); }
+.nav-item.active .count { background: var(--brand-soft); color: var(--brand); }
 .nav-item.indent { margin-left: 22px; font-size: 12.5px; }
 
 .org-card {
@@ -242,10 +266,10 @@ body {
 .btn:hover { background: white; }
 .btn:active { transform: translateY(1px); }
 .btn.primary {
-  background: linear-gradient(180deg, var(--accent) 0%, color-mix(in oklab, var(--accent) 86%, black) 100%);
-  border-color: color-mix(in oklab, var(--accent) 70%, black);
+  background: linear-gradient(180deg, var(--brand) 0%, color-mix(in oklab, var(--brand) 86%, black) 100%);
+  border-color: color-mix(in oklab, var(--brand) 70%, black);
   color: white;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset, 0 4px 12px -2px color-mix(in oklab, var(--accent) 55%, transparent);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset, 0 4px 12px -2px color-mix(in oklab, var(--brand) 55%, transparent);
 }
 .btn.primary:hover { filter: brightness(1.06); }
 .btn.ghost { background: transparent; border-color: transparent; }
@@ -327,18 +351,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   width: 18px; height: 18px; border-radius: 50%;
   background: white; border: 1.5px solid var(--line-strong);
 }
-.step.done .marker { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.step.done .marker { background: var(--brand); border-color: var(--brand); box-shadow: 0 0 0 4px var(--brand-soft); }
 .step.done .marker::after {
   content: ''; position: absolute; left: 4px; top: 7px;
   width: 8px; height: 4px; border: 1.5px solid white;
   border-top: none; border-right: none; transform: rotate(-45deg);
 }
-.step.current .marker { background: white; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.step.current .marker { background: white; border-color: var(--brand); box-shadow: 0 0 0 4px var(--brand-soft); }
 .step.current .marker::after {
   content: ''; position: absolute; inset: 3px; border-radius: 50%;
-  background: var(--accent); animation: pulse 1.6s ease-in-out infinite;
+  background: var(--brand); animation: pulse 1.6s ease-in-out infinite;
 }
-.step.current .name { color: var(--accent); font-weight: 600; }
+.step.current .name { color: var(--brand); font-weight: 600; }
 @keyframes pulse {
   0%,100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(0.7); opacity: 0.6; }
@@ -386,17 +410,51 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 /* ─── Forms ─── */
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: 12px; font-weight: 500; color: var(--ink-2); }
-.field input[type=text], .field input[type=url], .field textarea, .field select {
+.field input[type=text], .field input[type=url], .field input[type=number], .field input:not([type]), .field textarea {
   padding: 9px 12px; border-radius: 9px;
   border: 1px solid var(--line-strong);
   background: rgba(255,255,255,0.85);
   font-size: 13px; font-family: inherit; color: var(--ink-0); outline: none;
   transition: border-color 100ms;
 }
-.field input:focus, .field textarea:focus, .field select:focus {
-  border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+.field input:focus, .field textarea:focus {
+  border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft);
 }
 .field .hint { font-size: 11.5px; color: var(--ink-3); display: flex; align-items: center; gap: 4px; }
+
+/* shadcn Select trigger styled to match .field inputs */
+.field-select-trigger {
+  height: auto !important;
+  padding: 9px 12px !important;
+  border-radius: 9px !important;
+  border: 1px solid var(--line-strong) !important;
+  background: rgba(255,255,255,0.85) !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  color: var(--ink-0) !important;
+  box-shadow: none !important;
+  width: 100%;
+  transition: border-color 100ms;
+}
+.field-select-trigger:focus, .field-select-trigger[data-state=open] {
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px var(--brand-soft) !important;
+  outline: none !important;
+}
+
+/* shadcn date picker button styled to match .field inputs */
+.field-date-trigger {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 9px 12px; border-radius: 9px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255,255,255,0.85);
+  font-size: 13px; font-family: inherit; color: var(--ink-2);
+  cursor: pointer; outline: none; transition: border-color 100ms;
+}
+.field-date-trigger:focus, .field-date-trigger[data-state=open] {
+  border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.field-date-trigger .ic { color: var(--ink-3); flex-shrink: 0; }
 
 /* ─── Toggle switch ─── */
 .switch { position: relative; width: 36px; height: 20px; cursor: pointer; flex-shrink: 0; display: block; }
@@ -411,7 +469,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   transition: left 120ms;
 }
-.switch input:checked ~ .track { background: var(--accent); }
+.switch input:checked ~ .track { background: var(--brand); }
 .switch input:checked ~ .thumb { left: 18px; }
 
 /* ─── Activity feed ─── */
@@ -481,6 +539,14 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   animation: modal-in 180ms ease-out;
   will-change: transform, opacity;
 }
+.modal-panel.asset-modal {
+  width: min(600px, 100%);
+  padding: 22px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-panel.asset-modal::-webkit-scrollbar { width: 4px; }
+.modal-panel.asset-modal::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
 .manager-list {
   border: 1px solid var(--line-strong);
   border-radius: 9px;
@@ -732,6 +798,39 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 /* Mobile form */
 .m-form-field { padding: 0 22px 18px; }
 .m-form-field label { display: block; font-size: 12px; font-weight: 500; color: var(--m-ink-2); margin-bottom: 6px; }
+
+/* Mobile shadcn select trigger */
+.m-select-trigger {
+  height: auto !important;
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--m-line) !important;
+  background: var(--m-glass-2) !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  color: var(--m-ink-1) !important;
+  box-shadow: none !important;
+  transition: border-color 100ms;
+}
+.m-select-trigger:focus, .m-select-trigger[data-state=open] {
+  border-color: var(--m-accent) !important;
+  box-shadow: 0 0 0 3px var(--m-accent-soft) !important;
+  outline: none !important;
+}
+
+/* Mobile date picker trigger */
+.m-date-trigger {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 12px 14px; border-radius: 14px;
+  border: 1px solid var(--m-line);
+  background: var(--m-glass-2);
+  font-size: 14px; font-family: inherit; color: var(--m-ink-2);
+  cursor: pointer; outline: none; transition: border-color 100ms;
+}
+.m-date-trigger:focus, .m-date-trigger[data-state=open] {
+  border-color: var(--m-accent); box-shadow: 0 0 0 3px var(--m-accent-soft);
+}
 .m-form-field .input {
   width: 100%; padding: 13px 14px; border-radius: 14px;
   border: 1px solid var(--m-line-strong); background: rgba(255,252,247,0.85);
@@ -804,6 +903,143 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .m-filters .ch.active { background: var(--m-ink-0); color: white; border-color: var(--m-ink-0); }
 .m-filters .ch .n { background: rgba(28,25,23,0.08); padding: 0 5px; border-radius: 6px; font-size: 10.5px; }
 .m-filters .ch.active .n { background: rgba(255,255,255,0.18); }
+
+/* ─── Mobile interactions ─── */
+
+/* Request cards */
+.m-req {
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+a:hover .m-req, .m-req:hover {
+  background: rgba(255, 252, 247, 0.92);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -8px rgba(28, 25, 23, 0.14);
+}
+a:active .m-req {
+  transform: translateY(0px) scale(0.985);
+  transition: transform 60ms ease;
+}
+
+/* Quick action cards */
+.m-quick .a {
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  cursor: pointer;
+}
+.m-quick .a:hover {
+  background: rgba(255, 252, 247, 0.92);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -10px rgba(28, 25, 23, 0.18);
+}
+.m-quick .a:active {
+  transform: scale(0.96);
+  transition: transform 60ms ease;
+}
+
+/* Hero card */
+.m-hero {
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  cursor: default;
+}
+a:hover .m-hero {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 20px 40px -12px rgba(79, 70, 229, 0.55);
+}
+a:active .m-hero {
+  transform: scale(0.985);
+  transition: transform 60ms ease;
+}
+
+/* Icon buttons */
+.m-icon-btn {
+  transition: background 100ms ease, transform 80ms ease;
+  cursor: pointer;
+}
+.m-icon-btn:hover {
+  background: rgba(28, 25, 23, 0.08) !important;
+}
+.m-icon-btn:active {
+  transform: scale(0.9);
+}
+
+/* Tab bar items */
+.m-tabs .tab {
+  transition: color 120ms ease, background 120ms ease;
+}
+.m-tabs .tab:active { opacity: 0.7; }
+.m-tabs .fab {
+  transition: transform 120ms ease, filter 120ms ease;
+}
+.m-tabs .fab:hover { filter: brightness(1.1); }
+.m-tabs .fab:active { transform: scale(0.9) translateY(2px); }
+
+/* Filter chips */
+.m-filters .ch {
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease, transform 80ms ease;
+  cursor: pointer;
+}
+.m-filters .ch:hover:not(.active) {
+  background: rgba(28, 25, 23, 0.06);
+  border-color: rgba(28, 25, 23, 0.12);
+}
+.m-filters .ch:active { transform: scale(0.95); }
+
+/* Mobile cards */
+.m-card {
+  transition: box-shadow 120ms ease;
+}
+
+/* Mobile form fields */
+.m-form-field .input,
+.m-form-field textarea {
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.m-form-field .input:focus,
+.m-form-field textarea:focus {
+  border-color: var(--m-accent);
+  box-shadow: 0 0 0 3px var(--m-accent-soft);
+  outline: none;
+}
+
+/* Segment control */
+.m-form-field .seg .opt {
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+  cursor: pointer;
+}
+.m-form-field .seg .opt:active { transform: scale(0.95); }
+
+/* CTA button */
+.m-cta .btn {
+  transition: transform 100ms ease, filter 100ms ease, box-shadow 100ms ease;
+  cursor: pointer;
+}
+.m-cta .btn:hover { filter: brightness(1.06); }
+.m-cta .btn:active {
+  transform: scale(0.97) translateY(1px);
+  filter: brightness(0.97);
+}
+.m-cta .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; filter: none; }
+
+/* Stagger-in animation for req list */
+.m-req-list .m-req, .m-req-list > a {
+  opacity: 0;
+  animation: m-card-in 240ms ease-out forwards;
+}
+.m-req-list > *:nth-child(1) { animation-delay: 0ms; }
+.m-req-list > *:nth-child(2) { animation-delay: 55ms; }
+.m-req-list > *:nth-child(3) { animation-delay: 110ms; }
+.m-req-list > *:nth-child(4) { animation-delay: 165ms; }
+.m-req-list > *:nth-child(5) { animation-delay: 220ms; }
+.m-req-list > *:nth-child(n+6) { animation-delay: 275ms; }
+
+@keyframes m-card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Quick action stagger */
+.m-quick .a:nth-child(1) { animation: m-card-in 220ms 40ms ease-out both; }
+.m-quick .a:nth-child(2) { animation: m-card-in 220ms 100ms ease-out both; }
 
 /* Mobile empty */
 .m-empty {

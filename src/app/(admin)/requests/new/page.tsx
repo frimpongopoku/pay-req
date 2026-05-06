@@ -4,6 +4,17 @@ import { NewRequestForm } from './_components/NewRequestForm';
 
 export default async function NewRequestPage() {
   const user = await getSessionUser();
-  const assets = await getDb().listAssets(user?.orgId ?? '');
-  return <NewRequestForm assets={assets} />;
+  const db = getDb();
+  const orgId = user?.orgId ?? '';
+
+  const [assets, allRequests, org] = await Promise.all([
+    db.listAssets(orgId),
+    db.listRequests(orgId),
+    orgId ? db.getOrg(orgId) : null,
+  ]);
+
+  const vendors  = [...new Set(allRequests.map(r => r.payee).filter(Boolean))];
+  const currency = org?.currency ?? 'GHS';
+
+  return <NewRequestForm assets={assets} vendors={vendors} currency={currency} />;
 }

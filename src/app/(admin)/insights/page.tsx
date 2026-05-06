@@ -113,9 +113,9 @@ export default async function InsightsPage() {
   );
 
   const kpis = [
-    { l: 'Total requests',  v: String(total),       d: `${requests.filter(r=>r.status==='COMPLETED').length} completed`, s: sparkTotal,  c: 'var(--accent)' },
+    { l: 'Total requests',  v: String(total),       d: `${requests.filter(r=>r.status==='COMPLETED').length} completed`, s: sparkTotal,  c: 'var(--brand)' },
     { l: 'Approval rate',   v: `${approvalRate}%`,  d: `${approved} approved`,                                           s: sparkRate,   c: 'var(--good)' },
-    { l: 'Spend total',     v: `$${spend.toLocaleString()}`, d: `${assets.length} assets`,                               s: sparkSpend,  c: 'var(--accent-2)' },
+    { l: 'Spend total',     v: `$${spend.toLocaleString()}`, d: `${assets.length} assets`,                               s: sparkSpend,  c: 'var(--brand-2)' },
     { l: 'Open requests',   v: String(requests.filter(r=>!['COMPLETED','DENIED'].includes(r.status)).length), d: 'in progress', s: sparkTotal, c: 'var(--info)' },
   ];
 
@@ -225,7 +225,7 @@ export default async function InsightsPage() {
                   <span className="muted" style={{ fontVariantNumeric: 'tabular-nums' }}>${a.spend.toLocaleString()}</span>
                 </div>
                 <div style={{ height: 10, background: 'rgba(15,23,42,0.05)', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: Math.round(a.spend / maxSpend * 100) + '%', height: '100%', background: 'linear-gradient(90deg,var(--accent),var(--accent-2))', borderRadius: 4 }} />
+                  <div style={{ width: Math.round(a.spend / maxSpend * 100) + '%', height: '100%', background: 'linear-gradient(90deg,var(--brand),var(--brand-2))', borderRadius: 4 }} />
                 </div>
               </div>
             ))}

@@ -56,7 +56,9 @@ export default async function MobileRequestDetailPage({ params }: { params: Prom
           {asset && (
             <>
               <div className="k">Reviewer</div>
-              <div className="v">{asset.managers[0] ?? '—'}</div>
+              <div className="v">
+                {asset.managers.length ? asset.managers.join(', ') : 'All admins'}
+              </div>
             </>
           )}
         </div>
@@ -89,8 +91,12 @@ export default async function MobileRequestDetailPage({ params }: { params: Prom
                 {isDone && <div className="ts">✓</div>}
                 {i === 0 && isDone && (
                   <div className="note">
-                    Submitted with {request.attachments.length} attachment{request.attachments.length !== 1 ? 's' : ''}.
-                    {asset && ` Auto-assigned to ${asset.managers[0]} as manager of ${asset.name.split(' — ')[0]}.`}
+                    {request.attachments.length > 0
+                      ? `Submitted with ${request.attachments.length} attachment${request.attachments.length !== 1 ? 's' : ''}.`
+                      : 'Submitted with no attachments.'}
+                    {asset?.managers.length
+                      ? ` Assigned to ${asset.managers.join(', ')}.`
+                      : ' Reviewable by all admins.'}
                   </div>
                 )}
               </div>
