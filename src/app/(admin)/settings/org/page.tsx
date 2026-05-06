@@ -18,7 +18,7 @@ export default function OrgSettingsPage() {
           <div className="col" style={{ gap: 16 }}>
             <div className="field">
               <label>Organization name</label>
-              <input type="text" defaultValue="Northbound Freight" />
+              <input type="text" defaultValue="" placeholder="Your organization name" />
             </div>
             <div className="field">
               <label>Industry</label>

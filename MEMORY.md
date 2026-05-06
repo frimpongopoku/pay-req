@@ -1,53 +1,41 @@
 # PayReq Memory
 
-## Current State (May 5, 2026)
-Full multi-tenant onboarding flow live. All admin and employee features working end-to-end.
+## Current State (May 6, 2026)
+Postgres-first multi-tenant app is running locally and build-clean. Core admin + employee flows are working end-to-end.
 
-## Auth & Onboarding Flow
-- Sign-in at `/auth/signin` — user picks role (Admin/Manager vs Employee) before Google auth.
-- Session API returns `{ role, orgId }` after upserting user in Firestore.
-- **Admin path**: orgId present → `/dashboard`. No orgId → `/onboarding` (create org).
-- **Employee path**: orgId present → `/m`. No orgId → `/m/pending` (not added yet).
-- Both layouts enforce org check as fallback (loop-safe: `/m/pending` is outside `(mobile)` layout group).
-- `getSessionUser()` in `src/lib/session.ts` — React cache-wrapped. Use everywhere.
+## Architecture Direction
+- **Primary DB**: Postgres (`DB_PROVIDER=postgres`).
+- Local development uses local Postgres via `DATABASE_URL`.
+- Deployment target uses Neon by setting deployment `DATABASE_URL`.
+- Firestore auth/session integration still exists for Firebase Auth verification and client auth.
 
-## Organisation Model
-- `Organisation`: `{ id, name, ownerUid, createdAt }` in Firestore `orgs` collection.
-- `User.orgId?: string` — set when user joins/creates an org.
-- On org creation: creator gets `role: 'Admin'` and `orgId` set in Firestore.
-- Employees get orgId when an admin adds them (manual Firestore edit for now — invite flow is future work).
+## Database & Deployment Decisions
+- `getDb()` defaults to Postgres when `DB_PROVIDER` is unset.
+- Added migration runner script: `scripts/migrate.mjs`.
+- Added npm scripts:
+  - `db:migrate`
+  - `vercel-build` (`npm run db:migrate && next build`) for auto-migrate on Vercel build.
+- Local migration executed successfully against:
+  - `postgresql://postgres:postgres@localhost:5432/pay-req`
 
-## Data Layer
-- `IRepository` in `src/lib/db/repository.ts` — Postgres swap point.
-- `getDb()` — only import pages need. `DB_PROVIDER=postgres` to swap.
-- New methods: `createOrg`, `getOrg`, `listUsersByOrg`.
-- Seed: `POST /api/db/seed` (dev only).
-- NOTE: seeded data has no `orgId` — works fine in dev but will be invisible to org-scoped queries when added later.
+## Data Layer Notes
+- Repository contract remains in `src/lib/db/repository.ts`.
+- Postgres provider is active and supports orgs, users, assets, requests, activity, invites.
+- Dev seed route is now repository-driven for activity too (no Firestore-only activity writes).
 
-## Request Model
-- `requesterUid?: string` — set on all new requests.
-- Filter user's requests: `r.requesterUid === user.id || r.requester === user.name`.
+## Admin UX Changes (latest)
+- Org name is dynamic in admin shell (no hardcoded “Northbound Freight” in top nav/sidebar).
+- `/assets` now supports **real asset creation** via server action.
+- Asset creation uses a **modal** (`CreateAssetModal`) instead of inline details.
+- Asset managers are selected from live org users with roles `Admin` or `Manager`.
+- Navbar search is explicitly disabled (“Search coming soon”) until implemented.
+- Added lightweight, low-jank animations for modal and asset cards with reduced-motion fallback.
 
-## Admin Pages (all live, Firestore-backed)
-- `/dashboard`, `/requests`, `/requests/new`, `/requests/[id]`, `/assets`, `/users`
+## Product Rule (must persist)
+- For new features/components, prefer **shadcn/ui** components instead of ad-hoc custom component builds.
 
-## Employee Pages (all live, Firestore-backed)
-- `/m`, `/m/create`, `/m/requests`, `/m/requests/[id]`, `/m/profile`
-- `/m/pending` — employee without org (outside mobile layout, no redirect loop)
-
-## Server Actions
-- `/onboarding/actions.ts` — `createOrganisation`
-- `/requests/new/actions.ts` — `createRequest`
-- `/m/create/actions.ts` — `submitRequest`
-- `/requests/[id]/actions.ts` — `advanceStatus`, `rewindStatus`, `denyRequest`
-
-## Environment
-- `.env.local`: all Firebase credentials set.
-- Service-account key needs rotation.
-
-## Next Up
-- Org-scoped data queries (filter requests/assets by orgId)
-- Admin invite/add employee flow (currently manual Firestore edit)
-- Slack integration
-- Insights page
-- File attachments
+## Known Open Work
+- Slack integration is still mostly static UI.
+- Organization settings page is mostly static UI.
+- `/m/updates` remains placeholder.
+- Consider full Firebase-to-Postgres auth profile ownership later if desired.

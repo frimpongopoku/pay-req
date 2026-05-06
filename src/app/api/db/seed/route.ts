@@ -2,11 +2,6 @@ import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import type { User } from '@/lib/db';
 import { ASSETS, REQUESTS, USERS, ACTIVITY } from '@/lib/data';
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
-import { getAdminApp } from '@/lib/firebase-admin';
-
-// Maps the mock relative timestamps to real ISO timestamps offset from now.
-const ACTIVITY_OFFSETS_MS = [4 * 60_000, 60 * 60_000, 60 * 60_000, 2 * 60 * 60_000, 4 * 60 * 60_000, 24 * 60 * 60_000];
 
 export async function POST(req: Request) {
   if (process.env.NODE_ENV === 'production') {
@@ -17,8 +12,6 @@ export async function POST(req: Request) {
   const orgId = searchParams.get('orgId') ?? '';
 
   const db = getDb();
-  const fs = getFirestore(getAdminApp());
-  const now = Date.now();
 
   for (const { id, ...data } of ASSETS) {
     await db.upsertAsset(id, { ...data, orgId } as Parameters<typeof db.upsertAsset>[1]);
@@ -33,21 +26,12 @@ export async function POST(req: Request) {
     await db.upsertUser(id, { name, email: '', role: role as User['role'], depot, hue, orgId: orgId || undefined });
   }
 
-  // Activity — write directly to set real _ts values for ordering
-  const actSnap = await fs.collection('activity').get();
-  const batch = fs.batch();
-  actSnap.docs.forEach(d => batch.delete(d.ref));
-  await batch.commit();
-
-  for (let i = 0; i < ACTIVITY.length; i++) {
-    const a = ACTIVITY[i];
-    await fs.collection('activity').add({
+  for (const a of ACTIVITY) {
+    await db.addActivity(orgId, {
       who: a.who,
       what: a.what,
       tag: a.tag,
-      avHue: a.avHue ?? null,
-      orgId: orgId || null,
-      _ts: Timestamp.fromMillis(now - (ACTIVITY_OFFSETS_MS[i] ?? i * 60_000)),
+      avHue: a.avHue ?? undefined,
     });
   }
 

@@ -1,15 +1,20 @@
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { I } from '@/components/ui/icons';
+import { CreateAssetModal } from './_components/CreateAssetModal';
 
 export default async function AssetsPage() {
   const db = getDb();
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
-  const [assets, requests] = await Promise.all([
+  const [assets, requests, users] = await Promise.all([
     db.listAssets(orgId),
     db.listRequests(orgId),
+    db.listUsers(orgId),
   ]);
+  const managers = users
+    .filter((u) => u.role === 'Admin' || u.role === 'Manager')
+    .map((u) => ({ id: u.id, name: u.name, role: u.role }));
 
   const stats = Object.fromEntries(
     assets.map(a => {
@@ -30,14 +35,14 @@ export default async function AssetsPage() {
           </div>
         </div>
         <div className="spacer" />
-        <button className="btn primary">{I.plus}New asset</button>
+        <CreateAssetModal managers={managers} />
       </div>
 
       <div className="grid g-3">
-        {assets.map(a => {
+        {assets.map((a, i) => {
           const s = stats[a.id];
           return (
-            <div key={a.id} className="card glass">
+            <div key={a.id} className="card glass asset-card" style={{ animationDelay: `${i * 45}ms` }}>
               <div className="row" style={{ gap: 12, marginBottom: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg,#cbd5e1,#64748b)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0 }}>
                   {I.truck}

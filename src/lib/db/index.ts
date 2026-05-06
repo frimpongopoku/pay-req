@@ -5,7 +5,7 @@ let _instance: IRepository | null = null;
 export function getDb(): IRepository {
   if (_instance) return _instance;
 
-  const provider = process.env.DB_PROVIDER ?? 'firestore';
+  const provider = process.env.DB_PROVIDER ?? 'postgres';
 
   if (provider === 'postgres') {
     const { PostgresRepository } = require('./providers/postgres');

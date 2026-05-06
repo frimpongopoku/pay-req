@@ -4,27 +4,29 @@ import { signOut } from 'firebase/auth';
 import { getFirebaseAuth } from '@/lib/firebase-client';
 import { I } from '@/components/ui/icons';
 
-const crumbMap: Record<string, string[]> = {
-  '/dashboard':     ['Northbound Freight', 'Dashboard'],
-  '/requests':      ['Northbound Freight', 'Requests'],
-  '/assets':        ['Northbound Freight', 'Assets'],
-  '/users':         ['Northbound Freight', 'People'],
-  '/insights':      ['Northbound Freight', 'Insights'],
-  '/settings/slack':['Northbound Freight', 'Settings', 'Slack'],
-  '/settings/org':  ['Northbound Freight', 'Settings', 'Organization'],
-};
-
-function getCrumbs(pathname: string): string[] {
-  if (pathname.startsWith('/requests/')) {
-    const id = pathname.split('/')[2];
-    return ['Northbound Freight', 'Requests', id];
-  }
-  return crumbMap[pathname] ?? ['PayReq'];
+function getCrumbMap(orgName: string): Record<string, string[]> {
+  return {
+    '/dashboard': [orgName, 'Dashboard'],
+    '/requests': [orgName, 'Requests'],
+    '/assets': [orgName, 'Assets'],
+    '/users': [orgName, 'People'],
+    '/insights': [orgName, 'Insights'],
+    '/settings/slack': [orgName, 'Settings', 'Slack'],
+    '/settings/org': [orgName, 'Settings', 'Organization'],
+  };
 }
 
-export function Topbar({ userName }: { userName?: string }) {
+function getCrumbs(pathname: string, orgName: string): string[] {
+  if (pathname.startsWith('/requests/')) {
+    const id = pathname.split('/')[2];
+    return [orgName, 'Requests', id];
+  }
+  return getCrumbMap(orgName)[pathname] ?? ['PayReq'];
+}
+
+export function Topbar({ userName, orgName }: { userName?: string; orgName: string }) {
   const pathname = usePathname();
-  const crumbs = getCrumbs(pathname);
+  const crumbs = getCrumbs(pathname, orgName);
 
   async function handleSignOut() {
     await signOut(getFirebaseAuth());
@@ -42,10 +44,9 @@ export function Topbar({ userName }: { userName?: string }) {
           </span>
         ))}
       </div>
-      <div className="search">
+      <div className="search disabled" aria-disabled="true" title="Search coming soon">
         {I.search}
-        <span>Search requests, assets, people…</span>
-        <kbd>⌘ K</kbd>
+        <span>Search coming soon</span>
       </div>
       {userName && <span className="small muted" style={{ whiteSpace: 'nowrap' }}>{userName}</span>}
       <button className="btn ghost" onClick={handleSignOut} title="Sign out">{I.x}Sign out</button>

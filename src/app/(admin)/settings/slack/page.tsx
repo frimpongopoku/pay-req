@@ -33,7 +33,7 @@ export default function SlackSettingsPage() {
         <div className="card glass">
           <div className="card-h">
             <h3>Workspace connection</h3>
-            <span className="sub">Northbound Freight · connected 14 days ago</span>
+            <span className="sub">Connected 14 days ago</span>
             <div className="right">
               <span className="pill approved"><span className="dot" />Connected</span>
             </div>

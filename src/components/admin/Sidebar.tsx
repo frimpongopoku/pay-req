@@ -17,7 +17,19 @@ const settingsItems = [
   { id: 'org',   href: '/settings/org',  label: 'Organization', icon: I.settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({
+  orgName,
+  userName,
+  userRole,
+  userDepot,
+  userHue,
+}: {
+  orgName: string;
+  userName: string;
+  userRole: string;
+  userDepot?: string;
+  userHue: number;
+}) {
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -30,7 +42,7 @@ export function Sidebar() {
       <div className="brand">
         <div className="brand-mark" />
         <div className="brand-name">
-          PayReq <span>·</span> <span>Northbound Freight</span>
+          PayReq <span>·</span> <span>{orgName}</span>
         </div>
       </div>
 
@@ -60,12 +72,14 @@ export function Sidebar() {
       ))}
 
       <div className="org-card">
-        <Avatar name="Maya Patel" size={30} hue={220} />
+        <Avatar name={userName} size={30} hue={userHue} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 12.5, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Maya Patel
+            {userName}
           </div>
-          <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>Admin · East depot</div>
+          <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>
+            {userRole}{userDepot ? ` · ${userDepot}` : ''}
+          </div>
         </div>
       </div>
     </aside>
