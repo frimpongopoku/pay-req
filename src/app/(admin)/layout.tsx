@@ -3,6 +3,7 @@ import { getSessionUser } from '@/lib/session';
 import { getDb } from '@/lib/db';
 import { Sidebar } from '@/components/admin/Sidebar';
 import { Topbar } from '@/components/admin/Topbar';
+import { NavProgress } from '@/components/ui/NavProgress';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
@@ -16,6 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <>
+      <NavProgress />
       <div className="app-bg" />
       <div className="app">
         <Sidebar orgName={orgName} userName={user.name} userRole={user.role} userDepot={user.depot} userHue={user.hue} />

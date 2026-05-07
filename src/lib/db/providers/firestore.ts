@@ -120,6 +120,11 @@ export class FirestoreRepository implements IRepository {
     return toEntity<User>(await fs().collection('users').doc(id).get());
   }
 
+  async findUserByEmail(email: string): Promise<User | null> {
+    const snap = await fs().collection('users').where('email', '==', email).limit(1).get();
+    return snap.empty ? null : ({ id: snap.docs[0].id, ...snap.docs[0].data() } as User);
+  }
+
   async upsertUser(id: string, data: Omit<User, 'id'>): Promise<User> {
     await fs().collection('users').doc(id).set(data, { merge: true });
     return { id, ...data };

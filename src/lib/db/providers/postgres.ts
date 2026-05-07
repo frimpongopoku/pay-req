@@ -292,6 +292,11 @@ export class PostgresRepository implements IRepository {
     return rows.length ? rowToUser(rows[0]) : null;
   }
 
+  async findUserByEmail(email: string): Promise<User | null> {
+    const rows = await db()`SELECT * FROM users WHERE email = ${email} LIMIT 1`;
+    return rows.length ? rowToUser(rows[0]) : null;
+  }
+
   async upsertUser(id: string, data: Omit<User, 'id'>): Promise<User> {
     await db()`
       INSERT INTO users (id, name, email, role, org_id, depot, hue)

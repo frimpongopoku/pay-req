@@ -18,8 +18,13 @@ export async function inviteUser(
 
   const db = getDb();
 
-  const existing = await db.findInviteByEmail(email);
-  if (existing?.orgId === user.orgId) {
+  const existingUser = await db.findUserByEmail(email);
+  if (existingUser?.orgId) {
+    return { error: 'This person already belongs to an organisation. Multi-org membership is not yet supported.' };
+  }
+
+  const existingInvite = await db.findInviteByEmail(email);
+  if (existingInvite?.orgId === user.orgId) {
     return { error: 'This email already has a pending invite.' };
   }
 

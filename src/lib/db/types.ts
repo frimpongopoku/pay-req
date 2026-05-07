@@ -23,8 +23,9 @@ export interface Asset {
 }
 
 export interface PayeeDetails {
+  [key: string]: string | undefined;
   method: 'momo' | 'bank' | 'other';
-  momoNetwork?: string;   // 'MTN' | 'Vodafone' | 'AirtelTigo'
+  momoNetwork?: string;
   momoNumber?: string;
   momoName?: string;
   bankName?: string;

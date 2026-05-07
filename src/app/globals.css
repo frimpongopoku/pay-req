@@ -923,7 +923,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .m-cta {
   position: fixed; left: 0; right: 0; bottom: 0;
   padding: 14px 22px 28px;
-  background: linear-gradient(180deg, transparent 0%, rgba(253,248,243,0.95) 30%);
+  background: linear-gradient(180deg, transparent 0%, rgba(241,245,249,0.97) 30%);
   backdrop-filter: blur(8px); z-index: 40;
 }
 .m-cta .btn {
@@ -954,9 +954,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 a:hover .m-req, .m-req:hover {
-  background: rgba(255, 252, 247, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -8px rgba(28, 25, 23, 0.14);
+  box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.14);
 }
 a:active .m-req {
   transform: translateY(0px) scale(0.985);
@@ -969,9 +969,9 @@ a:active .m-req {
   cursor: pointer;
 }
 .m-quick .a:hover {
-  background: rgba(255, 252, 247, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -10px rgba(28, 25, 23, 0.18);
+  box-shadow: 0 8px 24px -10px rgba(15, 23, 42, 0.18);
 }
 .m-quick .a:active {
   transform: scale(0.96);
@@ -1083,6 +1083,46 @@ a:active .m-hero {
 /* Quick action stagger */
 .m-quick .a:nth-child(1) { animation: m-card-in 220ms 40ms ease-out both; }
 .m-quick .a:nth-child(2) { animation: m-card-in 220ms 100ms ease-out both; }
+
+/* ─── Skeleton shimmer ─── */
+@keyframes shimmer {
+  from { background-position: -600px 0; }
+  to   { background-position:  600px 0; }
+}
+.skel {
+  background: linear-gradient(90deg,
+    rgba(15,23,42,0.06) 25%,
+    rgba(15,23,42,0.11) 50%,
+    rgba(15,23,42,0.06) 75%
+  );
+  background-size: 1200px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ─── Nav progress bar ─── */
+@keyframes nav-fill {
+  from { width: 0%; }
+  to   { width: 85%; }
+}
+.nav-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 9999; pointer-events: none;
+}
+.nav-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  border-radius: 0 2px 2px 0;
+  transition: opacity 0.4s ease;
+}
+.nav-progress-bar.running {
+  animation: nav-fill 8s cubic-bezier(0.1, 0.05, 0, 1) forwards;
+}
+.nav-progress-bar.done {
+  width: 100% !important;
+  animation: none;
+  opacity: 0;
+  transition: width 0.2s ease, opacity 0.4s 0.15s ease;
+}
 
 /* Mobile empty */
 .m-empty {

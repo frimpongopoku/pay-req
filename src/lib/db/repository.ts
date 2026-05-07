@@ -31,6 +31,8 @@ export interface IRepository {
   // ── Users ─────────────────────────────────────────────────────────────────
   listUsers(orgId: string): Promise<User[]>;
   getUser(id: string): Promise<User | null>;
+  /** Find a user by email — used to block multi-org invites. */
+  findUserByEmail(email: string): Promise<User | null>;
   upsertUser(id: string, data: Omit<User, 'id'>): Promise<User>;
   deleteUser(id: string): Promise<void>;
 

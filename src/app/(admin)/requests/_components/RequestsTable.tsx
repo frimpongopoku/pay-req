@@ -1,6 +1,6 @@
 'use client';
 import { useState, useTransition, useEffect, useMemo } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Request, Asset } from '@/lib/db';
 import { Avatar } from '@/components/ui/Avatar';
 import { Pill } from '@/components/ui/Pill';
@@ -119,6 +119,7 @@ function printPDF(rows: Request[], assetMap: Record<string, Asset>, dateLabel: s
 
 // ── Main component ─────────────────────────────────────────────────────────
 export function RequestsTable({ requests, assetMap }: Props) {
+  const router = useRouter();
   const [filter, setFilter]           = useState<FilterId>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [dateFrom, setDateFrom]       = useState('');
@@ -303,18 +304,20 @@ export function RequestsTable({ requests, assetMap }: Props) {
               const asset = assetMap[r.asset];
               const isCompleted = r.status === 'COMPLETED';
               return (
-                <tr key={r.id}>
+                <tr
+                  key={r.id}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => router.push(`/requests/${r.id}`)}
+                >
                   <td onClick={e => e.stopPropagation()}><input type="checkbox" /></td>
                   <td>
-                    <Link href={`/requests/${r.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                      <div className="row" style={{ gap: 8 }}>
-                        {r.priority === 'high' && <span style={{ color: 'var(--bad)' }} title="High priority">{I.flag}</span>}
-                        <div>
-                          <div style={{ fontWeight: 500 }}>{r.title}</div>
-                          <div className="id">{r.id}{r.attachments.length > 0 && <> · {r.attachments.length} file{r.attachments.length !== 1 ? 's' : ''}</>}</div>
-                        </div>
+                    <div className="row" style={{ gap: 8 }}>
+                      {r.priority === 'high' && <span style={{ color: 'var(--bad)' }} title="High priority">{I.flag}</span>}
+                      <div>
+                        <div style={{ fontWeight: 500 }}>{r.title}</div>
+                        <div className="id">{r.id}{r.attachments.length > 0 && <> · {r.attachments.length} file{r.attachments.length !== 1 ? 's' : ''}</>}</div>
                       </div>
-                    </Link>
+                    </div>
                   </td>
                   <td><span className="chip">{I.truck}{asset?.name.split(' — ')[0] ?? r.asset}</span></td>
                   <td>
@@ -326,7 +329,7 @@ export function RequestsTable({ requests, assetMap }: Props) {
                   <td><Pill status={r.status} /></td>
                   <td className="num">{r.currency} {r.amount.toLocaleString()}</td>
                   <td className="muted small">{r.deadline}</td>
-                  <td>
+                  <td onClick={e => e.stopPropagation()}>
                     <RowMenu items={[
                       { label: 'Amend request', disabled: isCompleted, onClick: () => setAmending(r) },
                       { label: 'Delete request', danger: true, onClick: () => {

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
 import Link from 'next/link';
 import { MI } from '@/components/ui/icons';
+import { NavProgress } from '@/components/ui/NavProgress';
 
 
 function TabBar() {
@@ -23,6 +24,7 @@ export default async function MobileLayout({ children }: { children: React.React
 
   return (
     <div className="mobile-shell" style={{ minHeight: '100vh' }}>
+      <NavProgress />
       <div className="m-body">
         <div className="m-content">{children}</div>
       </div>
