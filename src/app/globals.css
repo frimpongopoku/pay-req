@@ -34,23 +34,24 @@
   --r-xl: 22px;
 
   /* Mobile tokens */
-  --m-bg-0: #f8fafc;
-  --m-bg-1: #f1f5f9;
-  --m-ink-0: #1c1917;
-  --m-ink-1: #292524;
-  --m-ink-2: #57534e;
-  --m-ink-3: #a8a29e;
-  --m-line: rgba(28, 25, 23, 0.08);
-  --m-line-strong: rgba(28, 25, 23, 0.14);
+  --m-bg-0: #f1f5f9;
+  --m-bg-1: #e8edf4;
+  --m-ink-0: #0f172a;
+  --m-ink-1: #1e293b;
+  --m-ink-2: #475569;
+  --m-ink-3: #94a3b8;
+  --m-line: rgba(15, 23, 42, 0.08);
+  --m-line-strong: rgba(15, 23, 42, 0.13);
   --m-accent: #6366f1;
   --m-accent-2: #f59e0b;
   --m-accent-soft: rgba(99,102,241,0.10);
   --m-good: #16a34a;
   --m-warn: #d97706;
   --m-bad: #dc2626;
-  --m-glass: rgba(255, 252, 247, 0.72);
-  --m-glass-2: rgba(255, 252, 247, 0.55);
-  --m-glass-border: rgba(255, 255, 255, 0.85);
+  --m-glass: rgba(255, 255, 255, 0.88);
+  --m-glass-2: rgba(255, 255, 255, 0.70);
+  --m-glass-border: rgba(255, 255, 255, 0.95);
+  --m-card-shadow: 0 1px 3px rgba(15,23,42,0.06), 0 4px 12px -4px rgba(15,23,42,0.08);
 }
 
 /* ─── shadcn/ui CSS vars (HSL channels) ─── */
@@ -626,7 +627,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   background:
     radial-gradient(600px 400px at 100% -10%, rgba(99,102,241,0.10), transparent 55%),
     radial-gradient(500px 400px at -10% 110%, rgba(99,102,241,0.08), transparent 55%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    linear-gradient(180deg, #f1f5f9 0%, #e8edf4 100%);
   font-family: var(--font-inter), -apple-system, system-ui, sans-serif;
   color: var(--m-ink-0);
   letter-spacing: -0.01em;
@@ -706,8 +707,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .m-quick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 22px 16px; }
 .m-quick .a {
   padding: 14px; border-radius: 16px;
-  background: var(--m-glass); border: 1px solid var(--m-glass-border);
-  backdrop-filter: blur(16px); display: flex; flex-direction: column; gap: 8px; cursor: pointer;
+  background: var(--m-glass); border: 1px solid rgba(15,23,42,0.07);
+  box-shadow: var(--m-card-shadow);
+  display: flex; flex-direction: column; gap: 8px; cursor: pointer;
 }
 .m-quick .a .ic-w {
   width: 32px; height: 32px; border-radius: 10px;
@@ -721,8 +723,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 /* Mobile request card */
 .m-req {
   margin: 0 22px 10px; padding: 14px 16px; border-radius: 16px;
-  background: var(--m-glass); border: 1px solid var(--m-glass-border);
-  backdrop-filter: blur(16px); display: flex; flex-direction: column; gap: 8px; cursor: pointer;
+  background: var(--m-glass); border: 1px solid rgba(15,23,42,0.07);
+  box-shadow: var(--m-card-shadow);
+  display: flex; flex-direction: column; gap: 8px; cursor: pointer;
 }
 .m-req .top { display: flex; align-items: center; gap: 8px; }
 .m-req .top .id { font-family: ui-monospace, monospace; font-size: 11px; color: var(--m-ink-2); }
@@ -731,7 +734,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .m-req .meta { display: flex; align-items: center; gap: 10px; font-size: 11.5px; color: var(--m-ink-2); }
 .m-req .meta b { color: var(--m-ink-1); font-weight: 600; font-variant-numeric: tabular-nums; }
 .m-req .stages-mini { display: flex; gap: 3px; }
-.m-req .stages-mini .s { flex: 1; height: 4px; border-radius: 2px; background: rgba(28,25,23,0.08); }
+.m-req .stages-mini .s { flex: 1; height: 4px; border-radius: 2px; background: rgba(15,23,42,0.10); }
 .m-req .stages-mini .s.done { background: var(--m-accent); }
 .m-req .stages-mini .s.cur { background: var(--m-accent); }
 
@@ -826,7 +829,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 /* Mobile card */
 .m-card {
   margin: 0 22px 14px; padding: 14px 16px; border-radius: 16px;
-  background: var(--m-glass); border: 1px solid var(--m-glass-border); backdrop-filter: blur(16px);
+  background: var(--m-glass); border: 1px solid rgba(15,23,42,0.07);
+  box-shadow: var(--m-card-shadow);
 }
 .m-card .kv { display: grid; grid-template-columns: 1fr auto; gap: 10px 14px; font-size: 13px; }
 .m-card .kv .k { color: var(--m-ink-2); }
@@ -1122,7 +1126,7 @@ a:active .m-hero {
     background:
       radial-gradient(700px 500px at 85% -20%, rgba(99,102,241,0.08), transparent 55%),
       radial-gradient(700px 500px at 15% 120%, rgba(99,102,241,0.06), transparent 55%),
-      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      linear-gradient(180deg, #f1f5f9 0%, #e8edf4 100%);
   }
 
   .m-status,
