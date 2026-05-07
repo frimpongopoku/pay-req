@@ -26,6 +26,7 @@ interface Props {
 
 export function RequestsList({ requests, assetMap }: Props) {
   const [filter, setFilter] = useState<FilterId>('all');
+  const [query, setQuery] = useState('');
 
   const counts = {
     all:       requests.length,
@@ -35,13 +36,23 @@ export function RequestsList({ requests, assetMap }: Props) {
     denied:    requests.filter(r => r.status === 'DENIED').length,
   };
 
+  const q = query.trim().toLowerCase();
   const filtered = requests.filter(r => {
-    if (filter === 'all')       return true;
-    if (filter === 'open')      return !['COMPLETED','DENIED'].includes(r.status);
-    if (filter === 'receipts')  return r.status === 'PAID';
-    if (filter === 'completed') return r.status === 'COMPLETED';
-    if (filter === 'denied')    return r.status === 'DENIED';
-    return true;
+    const statusMatch =
+      filter === 'all'       ? true :
+      filter === 'open'      ? !['COMPLETED','DENIED'].includes(r.status) :
+      filter === 'receipts'  ? r.status === 'PAID' :
+      filter === 'completed' ? r.status === 'COMPLETED' :
+      filter === 'denied'    ? r.status === 'DENIED' : true;
+    if (!statusMatch) return false;
+    if (!q) return true;
+    const assetName = assetMap[r.asset]?.name.toLowerCase() ?? '';
+    return (
+      r.id.toLowerCase().includes(q) ||
+      r.title.toLowerCase().includes(q) ||
+      r.payee.toLowerCase().includes(q) ||
+      assetName.includes(q)
+    );
   });
 
   const FILTERS: { id: FilterId; label: string }[] = [
@@ -68,8 +79,18 @@ export function RequestsList({ requests, assetMap }: Props) {
       </div>
 
       <div style={{ padding: '0 22px 10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 14, background: 'var(--m-glass-2)', border: '1px solid var(--m-line)', color: 'var(--m-ink-3)', fontSize: 13 }}>
-          {MI.search}<span>Search by ID, asset or vendor</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 14, background: 'var(--m-glass)', border: '1px solid rgba(15,23,42,0.07)', boxShadow: 'var(--m-card-shadow)' }}>
+          <span style={{ color: 'var(--m-ink-3)', display: 'flex', flexShrink: 0 }}>{MI.search}</span>
+          <input
+            type="search"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search by ID, title, asset or vendor"
+            style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: 13, fontFamily: 'inherit', color: 'var(--m-ink-0)' }}
+          />
+          {query && (
+            <button onClick={() => setQuery('')} style={{ border: 'none', background: 'none', color: 'var(--m-ink-3)', cursor: 'pointer', padding: 0, display: 'flex', fontSize: 16, lineHeight: 1 }}>×</button>
+          )}
         </div>
       </div>
 
