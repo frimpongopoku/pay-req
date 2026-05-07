@@ -94,5 +94,15 @@ await sql`CREATE INDEX IF NOT EXISTS users_org ON users (org_id)`;
 await sql`CREATE INDEX IF NOT EXISTS invites_org ON invites (org_id)`;
 await sql`CREATE UNIQUE INDEX IF NOT EXISTS invites_email ON invites (email)`;
 
+// Column additions — safe to re-run (IF NOT EXISTS)
+await sql`ALTER TABLE organisations ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'GHS'`;
+await sql`ALTER TABLE organisations ADD COLUMN IF NOT EXISTS slack_webhook TEXT`;
+await sql`ALTER TABLE organisations ADD COLUMN IF NOT EXISTS slack_channel TEXT`;
+await sql`ALTER TABLE organisations ADD COLUMN IF NOT EXISTS slack_events JSONB`;
+await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'other'`;
+await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS details JSONB NOT NULL DEFAULT '{}'`;
+await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS tags TEXT[] NOT NULL DEFAULT '{}'`;
+await sql`ALTER TABLE requests ADD COLUMN IF NOT EXISTS payee_details JSONB NOT NULL DEFAULT '{}'`;
+
 await sql.end();
-console.log('Migration complete');
+console.log('Migration complete.');
