@@ -194,6 +194,7 @@ body {
   cursor: pointer; user-select: none;
   border: 1px solid transparent;
   text-decoration: none;
+  width: 100%;
 }
 .nav-item:hover { background: rgba(15,23,42,0.04); }
 .nav-item.active {
