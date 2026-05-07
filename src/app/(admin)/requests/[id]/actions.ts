@@ -60,6 +60,7 @@ async function fireStatusNotify(
     priority: req.priority,
     assetName: asset?.name ?? req.asset,
     assetSlack: asset?.slack,
+    purpose: req.purpose,
     toStatus,
     prevStatus,
   });
@@ -107,6 +108,7 @@ export async function denyRequest(id: string) {
       priority: req.priority,
       assetName: asset?.name ?? req.asset,
       assetSlack: asset?.slack,
+      purpose: req.purpose,
       toStatus: 'DENIED',
       prevStatus,
     });

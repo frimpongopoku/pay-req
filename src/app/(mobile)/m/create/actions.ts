@@ -77,6 +77,7 @@ export async function submitRequest(formData: FormData) {
     priority,
     assetName: asset?.name ?? assetId,
     assetSlack: asset?.slack,
+    purpose,
     payeeDetails,
   });
 

@@ -14,6 +14,7 @@ export interface SlackNotifyData {
   assetSlack?: string | null;
   toStatus?: string;
   prevStatus?: string;
+  purpose?: string;
   payeeDetails?: import('./db/types').PayeeDetails;
 }
 
@@ -56,6 +57,16 @@ function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
     bodyText = `*${data.title}*`;
   }
 
+  const fields: object[] = [
+    { type: 'mrkdwn', text: `*Amount*\n${data.currency} ${data.amount.toLocaleString()}` },
+    { type: 'mrkdwn', text: `*Requester*\n${data.requester}` },
+    { type: 'mrkdwn', text: `*Deadline*\n${data.deadline}` },
+    { type: 'mrkdwn', text: `*Priority*\n${PRIORITY_LABELS[data.priority] ?? data.priority}` },
+  ];
+  if (data.purpose) {
+    fields.push({ type: 'mrkdwn', text: `*Description*\n${data.purpose}` });
+  }
+
   const blocks: object[] = [
     {
       type: 'section',
@@ -64,12 +75,7 @@ function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
     {
       type: 'section',
       text: { type: 'mrkdwn', text: bodyText },
-      fields: [
-        { type: 'mrkdwn', text: `*Amount*\n${data.currency} ${data.amount.toLocaleString()}` },
-        { type: 'mrkdwn', text: `*Requester*\n${data.requester}` },
-        { type: 'mrkdwn', text: `*Deadline*\n${data.deadline}` },
-        { type: 'mrkdwn', text: `*Priority*\n${PRIORITY_LABELS[data.priority] ?? data.priority}` },
-      ],
+      fields,
     },
   ];
 

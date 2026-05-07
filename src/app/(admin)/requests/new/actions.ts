@@ -79,6 +79,7 @@ export async function createRequest(formData: FormData) {
     priority,
     assetName: asset?.name ?? assetId,
     assetSlack: asset?.slack,
+    purpose,
     payeeDetails,
   });
 

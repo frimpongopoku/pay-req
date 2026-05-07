@@ -284,6 +284,24 @@ body {
 .card-h .sub { font-size: 12px; color: var(--ink-2); margin-left: 4px; }
 .card-h .right { margin-left: auto; }
 
+/* ─── Action-required row hover states (no event handlers needed) ─── */
+.action-row-warn {
+  display: grid; grid-template-columns: 1fr auto auto auto auto;
+  gap: 16px; align-items: center; padding: 11px 18px;
+  background: rgba(245,158,11,0.04);
+  border-bottom: 1px solid rgba(245,158,11,0.1);
+  transition: background 80ms;
+}
+.action-row-warn:hover { background: rgba(245,158,11,0.09); }
+.action-row-info {
+  display: grid; grid-template-columns: 1fr auto auto auto auto;
+  gap: 16px; align-items: center; padding: 11px 18px;
+  background: rgba(14,165,233,0.04);
+  border-bottom: 1px solid rgba(14,165,233,0.1);
+  transition: background 80ms;
+}
+.action-row-info:hover { background: rgba(14,165,233,0.09); }
+
 /* ─── KPI cards ─── */
 .kpi {
   padding: 18px 20px;

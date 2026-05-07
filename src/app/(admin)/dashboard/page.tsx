@@ -94,17 +94,7 @@ export default async function DashboardPage() {
               </div>
               {needsReview.map(r => (
                 <Link key={r.id} href={`/requests/${r.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                  <div style={{
-                    display: 'grid', gridTemplateColumns: '1fr auto auto auto auto',
-                    gap: 16, alignItems: 'center',
-                    padding: '11px 18px',
-                    background: 'rgba(245,158,11,0.04)',
-                    borderBottom: '1px solid rgba(245,158,11,0.1)',
-                    transition: 'background 80ms',
-                  }}
-                    onMouseOver={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.09)')}
-                    onMouseOut={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.04)')}
-                  >
+                  <div className="action-row-warn">
                     <div>
                       <div style={{ fontWeight: 500, fontSize: 13 }}>{r.title}</div>
                       <div className="id" style={{ marginTop: 2 }}>{r.id} · {r.requester}</div>
@@ -128,17 +118,7 @@ export default async function DashboardPage() {
               </div>
               {awaitingReceipts.map(r => (
                 <Link key={r.id} href={`/requests/${r.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-                  <div style={{
-                    display: 'grid', gridTemplateColumns: '1fr auto auto auto auto',
-                    gap: 16, alignItems: 'center',
-                    padding: '11px 18px',
-                    background: 'rgba(14,165,233,0.04)',
-                    borderBottom: '1px solid rgba(14,165,233,0.1)',
-                    transition: 'background 80ms',
-                  }}
-                    onMouseOver={e => (e.currentTarget.style.background = 'rgba(14,165,233,0.09)')}
-                    onMouseOut={e => (e.currentTarget.style.background = 'rgba(14,165,233,0.04)')}
-                  >
+                  <div className="action-row-info">
                     <div>
                       <div style={{ fontWeight: 500, fontSize: 13 }}>{r.title}</div>
                       <div className="id" style={{ marginTop: 2 }}>{r.id} · {r.requester}</div>
