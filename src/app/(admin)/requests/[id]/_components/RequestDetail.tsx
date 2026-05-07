@@ -130,6 +130,30 @@ export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount, o
                 <div style={{ fontWeight: 500 }}>{r.payee}</div>
                 <div className="muted small">Vendor · ACH</div>
               </div>
+              {r.payeeDetails?.method && (
+                <div style={{ gridColumn: '1 / -1', marginTop: 4 }}>
+                  <div className="muted small" style={{ marginBottom: 6 }}>Payment details</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {r.payeeDetails.method === 'momo' && (
+                      <>
+                        <span className="chip">{r.payeeDetails.momoNetwork ?? 'MoMo'}</span>
+                        {r.payeeDetails.momoNumber && <span className="chip">{r.payeeDetails.momoNumber}</span>}
+                        {r.payeeDetails.momoName && <span className="chip">{r.payeeDetails.momoName}</span>}
+                      </>
+                    )}
+                    {r.payeeDetails.method === 'bank' && (
+                      <>
+                        {r.payeeDetails.bankName && <span className="chip">{r.payeeDetails.bankName}</span>}
+                        {r.payeeDetails.accountNumber && <span className="chip">{r.payeeDetails.accountNumber}</span>}
+                        {r.payeeDetails.accountName && <span className="chip">{r.payeeDetails.accountName}</span>}
+                      </>
+                    )}
+                    {r.payeeDetails.method === 'other' && r.payeeDetails.reference && (
+                      <span className="chip">{r.payeeDetails.reference}</span>
+                    )}
+                  </div>
+                </div>
+              )}
               <div style={{ gridColumn: '1 / -1' }}>
                 <div className="muted small" style={{ marginBottom: 4 }}>Purpose</div>
                 <div style={{ lineHeight: 1.55 }}>{r.purpose}</div>

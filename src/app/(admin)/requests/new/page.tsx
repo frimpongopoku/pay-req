@@ -13,7 +13,15 @@ export default async function NewRequestPage() {
     orgId ? db.getOrg(orgId) : null,
   ]);
 
-  const vendors  = [...new Set(allRequests.map(r => r.payee).filter(Boolean))];
+  const seenNames = new Set<string>();
+  const vendors: { name: string; details?: import('@/lib/db/types').PayeeDetails }[] = [];
+  for (const r of [...allRequests].reverse()) {
+    if (r.payee && !seenNames.has(r.payee)) {
+      seenNames.add(r.payee);
+      vendors.push({ name: r.payee, details: r.payeeDetails });
+    }
+  }
+  vendors.reverse();
   const currency = org?.currency ?? 'GHS';
 
   return <NewRequestForm assets={assets} vendors={vendors} currency={currency} />;

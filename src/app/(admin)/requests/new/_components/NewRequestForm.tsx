@@ -2,7 +2,7 @@
 import { useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import type { Asset } from '@/lib/db';
+import type { Asset, PayeeDetails } from '@/lib/db';
 import { I } from '@/components/ui/icons';
 import { FileUpload, type FileUploadHandle } from '@/components/ui/FileUpload';
 import {
@@ -14,7 +14,7 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { createRequest } from '../actions';
 
-interface Props { assets: Asset[]; vendors: string[]; currency: string; }
+interface Props { assets: Asset[]; vendors: { name: string; details?: PayeeDetails }[]; currency: string; }
 
 export function NewRequestForm({ assets, vendors, currency }: Props) {
   const formRef  = useRef<HTMLFormElement>(null);
@@ -25,11 +25,33 @@ export function NewRequestForm({ assets, vendors, currency }: Props) {
   const [deadline, setDeadline] = useState<Date | undefined>(undefined);
   const [priority, setPriority] = useState<'low' | 'med' | 'high'>('med');
   const [payee, setPayee] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'momo' | 'bank' | 'other' | ''>('');
+  const [momoNetwork, setMomoNetwork]     = useState('');
+  const [momoNumber, setMomoNumber]       = useState('');
+  const [momoName, setMomoName]           = useState('');
+  const [bankName, setBankName]           = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountName, setAccountName]     = useState('');
+  const [reference, setReference]         = useState('');
 
   const selectedAsset = assets.find(a => a.id === selectedAssetId);
   const deadlineDays = deadline
     ? Math.ceil((deadline.getTime() - Date.now()) / 86_400_000)
     : null;
+
+  function applyVendor(v: { name: string; details?: PayeeDetails }) {
+    setPayee(v.name);
+    if (v.details?.method) {
+      setPaymentMethod(v.details.method);
+      setMomoNetwork(v.details.momoNetwork ?? '');
+      setMomoNumber(v.details.momoNumber ?? '');
+      setMomoName(v.details.momoName ?? '');
+      setBankName(v.details.bankName ?? '');
+      setAccountNumber(v.details.accountNumber ?? '');
+      setAccountName(v.details.accountName ?? '');
+      setReference(v.details.reference ?? '');
+    }
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,6 +62,13 @@ export function NewRequestForm({ assets, vendors, currency }: Props) {
     data.set('asset', selectedAssetId);
     data.set('priority', priority);
     data.set('currency', currency);
+    if (paymentMethod) {
+      const pd: PayeeDetails = { method: paymentMethod as PayeeDetails['method'] };
+      if (paymentMethod === 'momo') { pd.momoNetwork = momoNetwork; pd.momoNumber = momoNumber; pd.momoName = momoName; }
+      if (paymentMethod === 'bank') { pd.bankName = bankName; pd.accountNumber = accountNumber; pd.accountName = accountName; }
+      if (paymentMethod === 'other') { pd.reference = reference; }
+      data.set('payeeDetails', JSON.stringify(pd));
+    }
     startTransition(async () => {
       try {
         const urls = fileRef.current ? await fileRef.current.uploadAll() : [];
@@ -138,18 +167,18 @@ export function NewRequestForm({ assets, vendors, currency }: Props) {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
                     {vendors.map(v => (
                       <button
-                        key={v} type="button"
-                        onClick={() => setPayee(v)}
+                        key={v.name} type="button"
+                        onClick={() => applyVendor(v)}
                         style={{
                           padding: '4px 11px', borderRadius: 999,
                           fontSize: 12, fontFamily: 'inherit', fontWeight: 500,
-                          border: `1.5px solid ${payee === v ? 'var(--brand)' : 'var(--line-strong)'}`,
-                          background: payee === v ? 'var(--brand-soft)' : 'rgba(255,255,255,0.7)',
-                          color: payee === v ? 'var(--brand)' : 'var(--ink-1)',
+                          border: `1.5px solid ${payee === v.name ? 'var(--brand)' : 'var(--line-strong)'}`,
+                          background: payee === v.name ? 'var(--brand-soft)' : 'rgba(255,255,255,0.7)',
+                          color: payee === v.name ? 'var(--brand)' : 'var(--ink-1)',
                           cursor: 'pointer', transition: 'all 100ms ease',
                         }}
                       >
-                        {v}
+                        {v.name}
                       </button>
                     ))}
                   </div>
@@ -178,6 +207,66 @@ export function NewRequestForm({ assets, vendors, currency }: Props) {
                     </button>
                   )}
                 </div>
+              </div>
+
+              <div className="field" style={{ gridColumn: '1 / -1' }}>
+                <label>Payment method</label>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                  {(['momo', 'bank', 'other'] as const).map(m => (
+                    <button key={m} type="button"
+                      onClick={() => setPaymentMethod(paymentMethod === m ? '' : m)}
+                      style={{
+                        padding: '5px 14px', borderRadius: 999,
+                        fontSize: 12.5, fontFamily: 'inherit', fontWeight: 500,
+                        border: `1.5px solid ${paymentMethod === m ? 'var(--brand)' : 'var(--line-strong)'}`,
+                        background: paymentMethod === m ? 'var(--brand-soft)' : 'rgba(255,255,255,0.7)',
+                        color: paymentMethod === m ? 'var(--brand)' : 'var(--ink-1)',
+                        cursor: 'pointer', transition: 'all 100ms ease',
+                      }}
+                    >
+                      {m === 'momo' ? 'MoMo' : m === 'bank' ? 'Bank' : 'Other'}
+                    </button>
+                  ))}
+                </div>
+
+                {paymentMethod === 'momo' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink-2)' }}>Network</span>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        {['MTN', 'Vodafone', 'AirtelTigo'].map(n => (
+                          <button key={n} type="button"
+                            onClick={() => setMomoNetwork(n)}
+                            style={{
+                              padding: '5px 14px', borderRadius: 999,
+                              fontSize: 12, fontFamily: 'inherit', fontWeight: 500,
+                              border: `1.5px solid ${momoNetwork === n ? 'var(--brand)' : 'var(--line-strong)'}`,
+                              background: momoNetwork === n ? 'var(--brand-soft)' : 'rgba(255,255,255,0.7)',
+                              color: momoNetwork === n ? 'var(--brand)' : 'var(--ink-1)',
+                              cursor: 'pointer', transition: 'all 100ms ease',
+                            }}
+                          >{n}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <input type="text" placeholder="Phone number (e.g. 0244 123 456)" value={momoNumber} onChange={e => setMomoNumber(e.target.value)} />
+                    <input type="text" placeholder="Account name (optional)" value={momoName} onChange={e => setMomoName(e.target.value)} />
+                  </div>
+                )}
+
+                {paymentMethod === 'bank' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <input type="text" placeholder="Bank name (e.g. GCB Bank)" value={bankName} onChange={e => setBankName(e.target.value)} />
+                    <input type="text" placeholder="Account number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} />
+                    <input type="text" placeholder="Account name" value={accountName} onChange={e => setAccountName(e.target.value)} />
+                  </div>
+                )}
+
+                {paymentMethod === 'other' && (
+                  <div>
+                    <input type="text" placeholder="Reference / instructions" value={reference} onChange={e => setReference(e.target.value)} />
+                  </div>
+                )}
               </div>
 
               <div className="field">

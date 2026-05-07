@@ -14,6 +14,7 @@ export interface SlackNotifyData {
   assetSlack?: string | null;
   toStatus?: string;
   prevStatus?: string;
+  payeeDetails?: import('./db/types').PayeeDetails;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -71,6 +72,34 @@ function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
       ],
     },
   ];
+
+  if (data.payeeDetails?.method) {
+    const pd = data.payeeDetails;
+    let recipientLines = '';
+    if (pd.method === 'momo') {
+      recipientLines = [
+        `*Network:* ${pd.momoNetwork ?? '—'}`,
+        `*Number:* ${pd.momoNumber ?? '—'}`,
+        pd.momoName ? `*Account name:* ${pd.momoName}` : null,
+      ].filter(Boolean).join('   |   ');
+    } else if (pd.method === 'bank') {
+      recipientLines = [
+        `*Bank:* ${pd.bankName ?? '—'}`,
+        `*Account no:* ${pd.accountNumber ?? '—'}`,
+        pd.accountName ? `*Account name:* ${pd.accountName}` : null,
+      ].filter(Boolean).join('   |   ');
+    } else {
+      recipientLines = pd.reference ? `*Reference:* ${pd.reference}` : '';
+    }
+    if (recipientLines) {
+      const methodLabel = pd.method === 'momo' ? '📱 Mobile Money' : pd.method === 'bank' ? '🏦 Bank Transfer' : '💳 Other';
+      blocks.push({
+        type: 'section',
+        text: { type: 'mrkdwn', text: `*Recipient payment details* — ${methodLabel}\n${recipientLines}` },
+      });
+      blocks.push({ type: 'divider' });
+    }
+  }
 
   if (requestUrl) {
     blocks.push({

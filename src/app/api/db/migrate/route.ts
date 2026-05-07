@@ -102,6 +102,7 @@ export async function POST() {
   await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'other'`;
   await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS details JSONB NOT NULL DEFAULT '{}'`;
   await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS tags TEXT[] NOT NULL DEFAULT '{}'`;
+  await sql`ALTER TABLE requests ADD COLUMN IF NOT EXISTS payee_details JSONB NOT NULL DEFAULT '{}'`;
 
   await sql.end();
   return NextResponse.json({ ok: true, message: 'All tables created.' });

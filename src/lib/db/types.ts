@@ -22,6 +22,17 @@ export interface Asset {
   slack: string | null;
 }
 
+export interface PayeeDetails {
+  method: 'momo' | 'bank' | 'other';
+  momoNetwork?: string;   // 'MTN' | 'Vodafone' | 'AirtelTigo'
+  momoNumber?: string;
+  momoName?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountName?: string;
+  reference?: string;
+}
+
 export interface Request {
   id: string;
   orgId: string;
@@ -37,6 +48,7 @@ export interface Request {
   submittedAt?: string;
   purpose: string;
   payee: string;
+  payeeDetails?: PayeeDetails;
   attachments: string[];
   priority: Priority;
   additionalDetails?: string;

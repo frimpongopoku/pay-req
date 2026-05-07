@@ -35,6 +35,7 @@ function relativeTime(date: Date): string {
 const REQUEST_COL: Record<string, string> = {
   orgId: 'org_id', requesterUid: 'requester_uid',
   submittedAt: 'submitted_at', additionalDetails: 'additional_details',
+  payeeDetails: 'payee_details',
 };
 const ASSET_COL: Record<string, string> = { orgId: 'org_id', details: 'details', tags: 'tags' };
 const USER_COL: Record<string, string> = { orgId: 'org_id' };
@@ -85,6 +86,7 @@ function rowToRequest(r: any): Request {
     purpose: r.purpose, payee: r.payee,
     attachments: r.attachments ?? [], priority: r.priority,
     additionalDetails: r.additional_details ?? undefined,
+    payeeDetails: r.payee_details ?? undefined,
   };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,13 +169,14 @@ export class PostgresRepository implements IRepository {
       INSERT INTO requests (
         id, org_id, asset, title, amount, currency, requester, requester_uid,
         status, deadline, submitted, submitted_at, purpose, payee,
-        attachments, priority, additional_details
+        attachments, priority, additional_details, payee_details
       ) VALUES (
         ${id}, ${data.orgId}, ${data.asset}, ${data.title}, ${data.amount},
         ${data.currency}, ${data.requester}, ${data.requesterUid ?? null},
         ${data.status}, ${data.deadline}, ${data.submitted}, ${data.submittedAt ?? null},
         ${data.purpose}, ${data.payee}, ${data.attachments}, ${data.priority},
-        ${data.additionalDetails ?? null}
+        ${data.additionalDetails ?? null},
+        ${sql.json(data.payeeDetails ?? {} as unknown as never)}
       )
     `;
     return { id, ...data };
@@ -191,13 +194,14 @@ export class PostgresRepository implements IRepository {
       INSERT INTO requests (
         id, org_id, asset, title, amount, currency, requester, requester_uid,
         status, deadline, submitted, submitted_at, purpose, payee,
-        attachments, priority, additional_details
+        attachments, priority, additional_details, payee_details
       ) VALUES (
         ${id}, ${data.orgId}, ${data.asset}, ${data.title}, ${data.amount},
         ${data.currency}, ${data.requester}, ${data.requesterUid ?? null},
         ${data.status}, ${data.deadline}, ${data.submitted}, ${data.submittedAt ?? null},
         ${data.purpose}, ${data.payee}, ${data.attachments}, ${data.priority},
-        ${data.additionalDetails ?? null}
+        ${data.additionalDetails ?? null},
+        ${db().json(data.payeeDetails ?? {} as unknown as never)}
       )
       ON CONFLICT (id) DO UPDATE SET
         org_id = EXCLUDED.org_id, asset = EXCLUDED.asset, title = EXCLUDED.title,
@@ -207,7 +211,8 @@ export class PostgresRepository implements IRepository {
         submitted = EXCLUDED.submitted, submitted_at = EXCLUDED.submitted_at,
         purpose = EXCLUDED.purpose, payee = EXCLUDED.payee,
         attachments = EXCLUDED.attachments, priority = EXCLUDED.priority,
-        additional_details = EXCLUDED.additional_details
+        additional_details = EXCLUDED.additional_details,
+        payee_details = EXCLUDED.payee_details
     `;
     return { id, ...data };
   }

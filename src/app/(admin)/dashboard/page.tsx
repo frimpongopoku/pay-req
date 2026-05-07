@@ -37,6 +37,9 @@ export default async function DashboardPage() {
     .sort((a, b) => b.submitted.localeCompare(a.submitted))
     .slice(0, 5);
 
+  const needsReview      = requests.filter(r => ['SUBMITTED', 'UNDER_REVIEW'].includes(r.status));
+  const awaitingReceipts = requests.filter(r => r.status === 'PAID');
+
   const reqsByAsset = requests.reduce<Record<string, typeof requests>>((acc, r) => {
     if (r.status !== 'DENIED') (acc[r.asset] ??= []).push(r);
     return acc;
@@ -73,6 +76,84 @@ export default async function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* Action items */}
+      {(needsReview.length > 0 || awaitingReceipts.length > 0) && (
+        <div className="card glass" style={{ marginBottom: 16, padding: 0, overflow: 'hidden' }}>
+          <div className="card-h" style={{ padding: '14px 18px 10px', borderBottom: '1px solid var(--line)' }}>
+            <h3>Action required</h3>
+            <span className="sub">{needsReview.length + awaitingReceipts.length} item{(needsReview.length + awaitingReceipts.length) !== 1 ? 's' : ''} need attention</span>
+          </div>
+
+          {needsReview.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px 6px', background: 'rgba(245,158,11,0.05)' }}>
+                <span style={{ width: 3, height: 16, borderRadius: 2, background: 'var(--warn)', flexShrink: 0 }} />
+                <span style={{ fontSize: 11.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#b45309' }}>Needs review</span>
+                <span style={{ fontSize: 11.5, background: 'rgba(245,158,11,0.18)', color: '#b45309', padding: '1px 7px', borderRadius: 999, fontWeight: 600 }}>{needsReview.length}</span>
+              </div>
+              {needsReview.map(r => (
+                <Link key={r.id} href={`/requests/${r.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: '1fr auto auto auto auto',
+                    gap: 16, alignItems: 'center',
+                    padding: '11px 18px',
+                    background: 'rgba(245,158,11,0.04)',
+                    borderBottom: '1px solid rgba(245,158,11,0.1)',
+                    transition: 'background 80ms',
+                  }}
+                    onMouseOver={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.09)')}
+                    onMouseOut={e => (e.currentTarget.style.background = 'rgba(245,158,11,0.04)')}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 500, fontSize: 13 }}>{r.title}</div>
+                      <div className="id" style={{ marginTop: 2 }}>{r.id} · {r.requester}</div>
+                    </div>
+                    <span className="chip" style={{ fontSize: 11.5 }}>{assetMap[r.asset]?.name.split(' — ')[0]}</span>
+                    <Pill status={r.status} />
+                    <span style={{ fontSize: 13, fontVariantNumeric: 'tabular-nums', color: 'var(--ink-1)', fontWeight: 500 }}>{r.currency} {r.amount.toLocaleString()}</span>
+                    <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>Due {r.deadline}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {awaitingReceipts.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px 6px', background: 'rgba(14,165,233,0.05)' }}>
+                <span style={{ width: 3, height: 16, borderRadius: 2, background: 'var(--info)', flexShrink: 0 }} />
+                <span style={{ fontSize: 11.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#0369a1' }}>Awaiting receipts</span>
+                <span style={{ fontSize: 11.5, background: 'rgba(14,165,233,0.18)', color: '#0369a1', padding: '1px 7px', borderRadius: 999, fontWeight: 600 }}>{awaitingReceipts.length}</span>
+              </div>
+              {awaitingReceipts.map(r => (
+                <Link key={r.id} href={`/requests/${r.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: '1fr auto auto auto auto',
+                    gap: 16, alignItems: 'center',
+                    padding: '11px 18px',
+                    background: 'rgba(14,165,233,0.04)',
+                    borderBottom: '1px solid rgba(14,165,233,0.1)',
+                    transition: 'background 80ms',
+                  }}
+                    onMouseOver={e => (e.currentTarget.style.background = 'rgba(14,165,233,0.09)')}
+                    onMouseOut={e => (e.currentTarget.style.background = 'rgba(14,165,233,0.04)')}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 500, fontSize: 13 }}>{r.title}</div>
+                      <div className="id" style={{ marginTop: 2 }}>{r.id} · {r.requester}</div>
+                    </div>
+                    <span className="chip" style={{ fontSize: 11.5 }}>{assetMap[r.asset]?.name.split(' — ')[0]}</span>
+                    <Pill status={r.status} />
+                    <span style={{ fontSize: 13, fontVariantNumeric: 'tabular-nums', color: 'var(--ink-1)', fontWeight: 500 }}>{r.currency} {r.amount.toLocaleString()}</span>
+                    <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>Due {r.deadline}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="grid g-2-1">
         {/* Recent requests */}

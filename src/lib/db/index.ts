@@ -34,4 +34,5 @@ export type {
   Priority,
   AssetStatus,
   SlackEvents,
+  PayeeDetails,
 } from './types';

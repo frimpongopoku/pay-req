@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { notify } from '@/lib/slack';
-import type { Priority } from '@/lib/db';
+import type { Priority, PayeeDetails } from '@/lib/db';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -23,6 +23,8 @@ export async function submitRequest(formData: FormData) {
   const priority    = (formData.get('priority') as Priority) ?? 'med';
   const deadline    = formData.get('deadline') as string;
   const payee       = (formData.get('payee') as string).trim();
+  const payeeDetailsRaw = formData.get('payeeDetails') as string | null;
+  const payeeDetails: PayeeDetails | undefined = payeeDetailsRaw ? JSON.parse(payeeDetailsRaw) : undefined;
   const purpose     = (formData.get('purpose') as string).trim();
   const currency    = (formData.get('currency') as string | null)?.trim() || 'GHS';
   const attachments = formData.getAll('attachments').filter(Boolean) as string[];
@@ -48,6 +50,7 @@ export async function submitRequest(formData: FormData) {
     submittedAt: now.toISOString(),
     purpose,
     payee,
+    payeeDetails,
     attachments,
     priority,
   });
@@ -74,6 +77,7 @@ export async function submitRequest(formData: FormData) {
     priority,
     assetName: asset?.name ?? assetId,
     assetSlack: asset?.slack,
+    payeeDetails,
   });
 
   redirect('/m/requests');
