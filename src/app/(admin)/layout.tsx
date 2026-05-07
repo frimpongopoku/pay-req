@@ -10,7 +10,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user) redirect('/auth/signin');
   if (!user.orgId) redirect('/onboarding');
   if (user.role === 'Employee') redirect('/m');
-  const org = await getDb().getOrg(user.orgId);
+
+  const [org] = await Promise.all([getDb().getOrg(user.orgId)]);
   const orgName = org?.name ?? 'Your Organization';
 
   return (

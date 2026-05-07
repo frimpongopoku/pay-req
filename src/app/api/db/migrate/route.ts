@@ -96,6 +96,9 @@ export async function POST() {
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS invites_email ON invites (email)`;
 
   await sql`ALTER TABLE organisations ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'GHS'`;
+  await sql`ALTER TABLE organisations ADD COLUMN IF NOT EXISTS slack_webhook TEXT`;
+  await sql`ALTER TABLE organisations ADD COLUMN IF NOT EXISTS slack_channel TEXT`;
+  await sql`ALTER TABLE organisations ADD COLUMN IF NOT EXISTS slack_events JSONB`;
   await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'other'`;
   await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS details JSONB NOT NULL DEFAULT '{}'`;
   await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS tags TEXT[] NOT NULL DEFAULT '{}'`;

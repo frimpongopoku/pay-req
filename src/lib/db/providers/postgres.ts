@@ -50,7 +50,12 @@ function toSnake(obj: Record<string, unknown>, map: Record<string, string>) {
 // Row → domain type
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function rowToOrg(r: any): Organisation {
-  return { id: r.id, name: r.name, ownerUid: r.owner_uid, createdAt: r.created_at, currency: r.currency ?? 'GHS' };
+  return {
+    id: r.id, name: r.name, ownerUid: r.owner_uid, createdAt: r.created_at, currency: r.currency ?? 'GHS',
+    slackWebhook: r.slack_webhook ?? undefined,
+    slackChannel: r.slack_channel ?? undefined,
+    slackEvents: r.slack_events ?? undefined,
+  };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function rowToUser(r: any): User {
@@ -114,7 +119,10 @@ export class PostgresRepository implements IRepository {
   }
 
   async updateOrg(id: string, patch: Partial<Omit<Organisation, 'id'>>): Promise<Organisation | null> {
-    const ORG_COL: Record<string, string> = { ownerUid: 'owner_uid', createdAt: 'created_at' };
+    const ORG_COL: Record<string, string> = {
+      ownerUid: 'owner_uid', createdAt: 'created_at',
+      slackWebhook: 'slack_webhook', slackChannel: 'slack_channel', slackEvents: 'slack_events',
+    };
     const mapped = toSnake(patch as Record<string, unknown>, ORG_COL);
     if (!Object.keys(mapped).length) return this.getOrg(id);
     await db()`UPDATE organisations SET ${db()(mapped)} WHERE id = ${id}`;

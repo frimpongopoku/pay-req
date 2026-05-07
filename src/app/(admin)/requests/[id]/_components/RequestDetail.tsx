@@ -28,9 +28,10 @@ interface Props {
   asset: Asset;
   assetSpend: number;
   assetOpenCount: number;
+  orgCurrency: string;
 }
 
-export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount }: Props) {
+export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount, orgCurrency }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const stageIdx = LIFECYCLE_STAGES.indexOf(r.status);
@@ -121,8 +122,7 @@ export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount }:
               <div>
                 <div className="muted small" style={{ marginBottom: 4 }}>Amount</div>
                 <div style={{ fontSize: 22, fontWeight: 600, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
-                  ${r.amount.toLocaleString()}.00{' '}
-                  <span className="muted" style={{ fontSize: 13, fontWeight: 400 }}>{r.currency}</span>
+                  {r.currency} {r.amount.toLocaleString()}
                 </div>
               </div>
               <div>
@@ -209,7 +209,7 @@ export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount }:
               <div className="muted">Slack channel</div>
               <div style={{ textAlign: 'right' }}>{asset.slack ?? <span className="muted">Org default</span>}</div>
               <div className="muted">YTD spend</div>
-              <div style={{ textAlign: 'right' }}>${assetSpend.toLocaleString()}</div>
+              <div style={{ textAlign: 'right' }}>{orgCurrency} {assetSpend.toLocaleString()}</div>
               <div className="muted">Open requests</div>
               <div style={{ textAlign: 'right' }}>{assetOpenCount}</div>
             </div>
@@ -232,7 +232,7 @@ export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount }:
                 <b>{r.title}</b>
               </div>
               <div className="fields">
-                <div><div className="k">Amount</div><div className="v">${r.amount.toLocaleString()} {r.currency}</div></div>
+                <div><div className="k">Amount</div><div className="v">{r.currency} {r.amount.toLocaleString()}</div></div>
                 <div><div className="k">Requester</div><div className="v">{r.requester}</div></div>
                 <div><div className="k">Deadline</div><div className="v">{r.deadline}</div></div>
                 <div><div className="k">Assigned to</div><div className="v">{asset.managers[0]}</div></div>

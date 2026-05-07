@@ -103,7 +103,7 @@ export function RequestsTable({ requests, assetMap }: Props) {
                   </div>
                 </td>
                 <td><Pill status={r.status} /></td>
-                <td className="num">${r.amount.toLocaleString()}</td>
+                <td className="num">{r.currency} {r.amount.toLocaleString()}</td>
                 <td className="muted small">{r.deadline}</td>
                 <td>
                   <button className="btn ghost" style={{ padding: 4 }}>{I.more}</button>

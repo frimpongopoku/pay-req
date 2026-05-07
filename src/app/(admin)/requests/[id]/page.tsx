@@ -9,10 +9,11 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
 
-  const [request, assets, allRequests] = await Promise.all([
+  const [request, assets, allRequests, org] = await Promise.all([
     db.getRequest(id),
     db.listAssets(orgId),
     db.listRequests(orgId),
+    db.getOrg(orgId),
   ]);
 
   if (!request) notFound();
@@ -30,6 +31,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
       asset={asset}
       assetSpend={assetSpend}
       assetOpenCount={assetOpenCount}
+      orgCurrency={org?.currency ?? 'GHS'}
     />
   );
 }

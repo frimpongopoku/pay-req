@@ -73,10 +73,12 @@ export default async function InsightsPage() {
   const db = getDb();
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
-  const [requests, assets] = await Promise.all([
+  const [requests, assets, org] = await Promise.all([
     db.listRequests(orgId),
     db.listAssets(orgId),
+    db.getOrg(orgId),
   ]);
+  const orgCurrency = org?.currency ?? 'GHS';
 
   const total = requests.length;
   const approved = requests.filter(r => ['APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'].includes(r.status)).length;
@@ -115,7 +117,7 @@ export default async function InsightsPage() {
   const kpis = [
     { l: 'Total requests',  v: String(total),       d: `${requests.filter(r=>r.status==='COMPLETED').length} completed`, s: sparkTotal,  c: 'var(--brand)' },
     { l: 'Approval rate',   v: `${approvalRate}%`,  d: `${approved} approved`,                                           s: sparkRate,   c: 'var(--good)' },
-    { l: 'Spend total',     v: `$${spend.toLocaleString()}`, d: `${assets.length} assets`,                               s: sparkSpend,  c: 'var(--brand-2)' },
+    { l: 'Spend total',     v: `${orgCurrency} ${spend.toLocaleString()}`, d: `${assets.length} assets`,                               s: sparkSpend,  c: 'var(--brand-2)' },
     { l: 'Open requests',   v: String(requests.filter(r=>!['COMPLETED','DENIED'].includes(r.status)).length), d: 'in progress', s: sparkTotal, c: 'var(--info)' },
   ];
 
@@ -222,7 +224,7 @@ export default async function InsightsPage() {
                 <div className="row small" style={{ marginBottom: 4 }}>
                   <span style={{ fontWeight: 500 }}>{a.name}</span>
                   <span className="spacer" />
-                  <span className="muted" style={{ fontVariantNumeric: 'tabular-nums' }}>${a.spend.toLocaleString()}</span>
+                  <span className="muted" style={{ fontVariantNumeric: 'tabular-nums' }}>{orgCurrency} {a.spend.toLocaleString()}</span>
                 </div>
                 <div style={{ height: 10, background: 'rgba(15,23,42,0.05)', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{ width: Math.round(a.spend / maxSpend * 100) + '%', height: '100%', background: 'linear-gradient(90deg,var(--brand),var(--brand-2))', borderRadius: 4 }} />

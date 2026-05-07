@@ -5,7 +5,12 @@ import { SignOutButton } from './_components/SignOutButton';
 
 export default async function MobileProfilePage() {
   const [user, db] = [await getSessionUser(), getDb()];
-  const allRequests = await db.listRequests(user?.orgId ?? '');
+  const orgId = user?.orgId ?? '';
+  const [allRequests, org] = await Promise.all([
+    db.listRequests(orgId),
+    db.getOrg(orgId),
+  ]);
+  const orgCurrency = org?.currency ?? 'GHS';
 
   const mine = allRequests.filter(r =>
     r.requesterUid === user?.id || r.requester === user?.name
@@ -45,7 +50,7 @@ export default async function MobileProfilePage() {
       <div className="m-card">
         <h4>Spend to date</h4>
         <div style={{ fontSize: 30, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
-          ${spend.toLocaleString()}
+          {orgCurrency} {spend.toLocaleString()}
         </div>
         <div className="small" style={{ color: 'var(--m-ink-2)', marginTop: 6 }}>
           Across all your submitted requests

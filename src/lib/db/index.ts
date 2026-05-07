@@ -33,4 +33,5 @@ export type {
   RequestStatus,
   Priority,
   AssetStatus,
+  SlackEvents,
 } from './types';

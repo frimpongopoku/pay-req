@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { notify } from '@/lib/slack';
 import type { Priority } from '@/lib/db';
 
 function formatDate(iso: string): string {
@@ -33,7 +34,7 @@ export async function submitRequest(formData: FormData) {
   const now = new Date();
   const submitted = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
 
-  await db.createRequest({
+  const request = await db.createRequest({
     orgId: user.orgId,
     asset: assetId,
     title,
@@ -61,6 +62,19 @@ export async function submitRequest(formData: FormData) {
   revalidatePath('/m/requests');
   revalidatePath('/dashboard');
   revalidatePath('/requests');
+
+  const asset = await db.getAsset(assetId);
+  await notify(user.orgId, 'new_request', {
+    requestId: request.id,
+    title,
+    amount,
+    currency,
+    requester: user.name,
+    deadline: formatDate(deadline),
+    priority,
+    assetName: asset?.name ?? assetId,
+    assetSlack: asset?.slack,
+  });
 
   redirect('/m/requests');
 }

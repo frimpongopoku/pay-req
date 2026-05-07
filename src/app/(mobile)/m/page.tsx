@@ -19,10 +19,12 @@ function StagesMini({ stage, total = 6 }: { stage: number; total?: number }) {
 export default async function MobileHomePage() {
   const [user, db] = [await getSessionUser(), getDb()];
   const orgId = user?.orgId ?? '';
-  const [allRequests, assets] = await Promise.all([
+  const [allRequests, assets, org] = await Promise.all([
     db.listRequests(orgId),
     db.listAssets(orgId),
+    db.getOrg(orgId),
   ]);
+  const orgCurrency = org?.currency ?? 'GHS';
 
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a]));
 
@@ -54,7 +56,7 @@ export default async function MobileHomePage() {
           <div className="m-hero">
             <div className="lab">{hero.status.replace('_', ' ').toLowerCase()} · {myRequests.filter(r => !['COMPLETED','DENIED'].includes(r.status)).length} open</div>
             <div className="title">{hero.title}</div>
-            <div className="sub">{assetMap[hero.asset]?.name.split(' — ')[0]} · ${hero.amount.toLocaleString()}</div>
+            <div className="sub">{assetMap[hero.asset]?.name.split(' — ')[0]} · {hero.currency} {hero.amount.toLocaleString()}</div>
             <div className="m-hero-row">
               <MPill status={hero.status} />
               <span style={{ marginLeft: 'auto', opacity: 0.85 }}>due {hero.deadline}</span>
@@ -116,7 +118,7 @@ export default async function MobileHomePage() {
                     <div className="meta">
                       <span>{assetMap[r.asset]?.name.split(' — ')[0]}</span>
                       <span>·</span>
-                      <span><b>${r.amount.toLocaleString()}</b></span>
+                      <span><b>{r.currency} {r.amount.toLocaleString()}</b></span>
                       <span>·</span>
                       <span>Due {r.deadline}</span>
                     </div>

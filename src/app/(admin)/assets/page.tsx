@@ -15,18 +15,25 @@ export default async function AssetsPage() {
   const db = getDb();
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
-  const [assets, requests, users] = await Promise.all([
+  const [assets, requests, users, org] = await Promise.all([
     db.listAssets(orgId),
     db.listRequests(orgId),
     db.listUsers(orgId),
+    db.getOrg(orgId),
   ]);
+  const orgCurrency = org?.currency ?? 'GHS';
   const managers = users
     .filter((u) => u.role === 'Manager')
     .map((u) => ({ id: u.id, name: u.name, role: u.role }));
 
+  const reqsByAsset = requests.reduce<Record<string, typeof requests>>((acc, r) => {
+    (acc[r.asset] ??= []).push(r);
+    return acc;
+  }, {});
+
   const stats = Object.fromEntries(
     assets.map(a => {
-      const aReqs = requests.filter(r => r.asset === a.id);
+      const aReqs = reqsByAsset[a.id] ?? [];
       const open  = aReqs.filter(r => !['COMPLETED', 'DENIED'].includes(r.status)).length;
       const spend = aReqs.filter(r => r.status !== 'DENIED').reduce((s, r) => s + r.amount, 0);
       return [a.id, { open, spend, total: aReqs.length }];
@@ -81,7 +88,7 @@ export default async function AssetsPage() {
                 <div className="muted">Open requests</div>
                 <div style={{ textAlign: 'right', fontWeight: 500 }}>{s.open}</div>
                 <div className="muted">Total spend</div>
-                <div style={{ textAlign: 'right', fontWeight: 500 }}>${s.spend.toLocaleString()}</div>
+                <div style={{ textAlign: 'right', fontWeight: 500 }}>{orgCurrency} {s.spend.toLocaleString()}</div>
               </div>
             </div>
           );

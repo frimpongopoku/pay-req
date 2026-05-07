@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { notify } from '@/lib/slack';
 import type { RequestStatus } from '@/lib/db';
 
 const NEXT: Partial<Record<RequestStatus, RequestStatus>> = {
@@ -38,6 +39,32 @@ function invalidate(id: string) {
   revalidatePath('/dashboard');
 }
 
+async function fireStatusNotify(
+  orgId: string,
+  requestId: string,
+  prevStatus: RequestStatus,
+  toStatus: RequestStatus,
+) {
+  const db = getDb();
+  const req = await db.getRequest(requestId);
+  if (!req) return;
+  const asset = await db.getAsset(req.asset);
+  const event = toStatus === 'RECEIPTS_SUBMITTED' ? 'receipt_submission' : 'status_change';
+  await notify(orgId, event, {
+    requestId,
+    title: req.title,
+    amount: req.amount,
+    currency: req.currency,
+    requester: req.requester,
+    deadline: req.deadline,
+    priority: req.priority,
+    assetName: asset?.name ?? req.asset,
+    assetSlack: asset?.slack,
+    toStatus,
+    prevStatus,
+  });
+}
+
 export async function advanceStatus(id: string, currentStatus: RequestStatus) {
   const next = NEXT[currentStatus];
   if (!next) return;
@@ -46,6 +73,7 @@ export async function advanceStatus(id: string, currentStatus: RequestStatus) {
   await db.updateRequest(id, { status: next });
   await db.addActivity(user.orgId, { who: user.name, what: `moved ${id} to ${STATUS_LABELS[next]}`, tag: 'advance' });
   invalidate(id);
+  await fireStatusNotify(user.orgId, id, currentStatus, next);
 }
 
 export async function rewindStatus(id: string, currentStatus: RequestStatus) {
@@ -56,14 +84,33 @@ export async function rewindStatus(id: string, currentStatus: RequestStatus) {
   await db.updateRequest(id, { status: prev });
   await db.addActivity(user.orgId, { who: user.name, what: `rewound ${id} to ${STATUS_LABELS[prev]}`, tag: 'rewind' });
   invalidate(id);
+  await fireStatusNotify(user.orgId, id, currentStatus, prev);
 }
 
 export async function denyRequest(id: string) {
   const [db, user] = [getDb(), await getSessionUser()];
   if (!user?.orgId) return;
+  const req = await db.getRequest(id);
+  const prevStatus = req?.status ?? 'SUBMITTED' as RequestStatus;
   await db.updateRequest(id, { status: 'DENIED' });
   await db.addActivity(user.orgId, { who: user.name, what: `denied ${id}`, tag: 'deny' });
   invalidate(id);
+  if (req) {
+    const asset = await db.getAsset(req.asset);
+    await notify(user.orgId, 'status_change', {
+      requestId: id,
+      title: req.title,
+      amount: req.amount,
+      currency: req.currency,
+      requester: req.requester,
+      deadline: req.deadline,
+      priority: req.priority,
+      assetName: asset?.name ?? req.asset,
+      assetSlack: asset?.slack,
+      toStatus: 'DENIED',
+      prevStatus,
+    });
+  }
 }
 
 export async function addAttachments(id: string, urls: string[]) {

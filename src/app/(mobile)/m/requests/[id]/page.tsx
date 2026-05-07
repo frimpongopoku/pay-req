@@ -48,7 +48,7 @@ export default async function MobileRequestDetailPage({ params }: { params: Prom
       <div className="m-card">
         <div className="kv">
           <div className="k">Amount</div>
-          <div className="v">${request.amount.toLocaleString()} <span style={{ color: 'var(--m-ink-3)', fontWeight: 400 }}>{request.currency}</span></div>
+          <div className="v">{request.currency} {request.amount.toLocaleString()}</div>
           <div className="k">Payee</div>
           <div className="v">{request.payee}</div>
           <div className="k">Need by</div>

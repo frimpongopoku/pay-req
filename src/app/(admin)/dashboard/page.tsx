@@ -10,11 +10,13 @@ export default async function DashboardPage() {
   const db = getDb();
   const currentUser = await getSessionUser();
   const orgId = currentUser?.orgId ?? '';
-  const [requests, assets, activity] = await Promise.all([
+  const [requests, assets, activity, org] = await Promise.all([
     db.listRequests(orgId),
     db.listAssets(orgId),
     db.listActivity(orgId, 6),
+    db.getOrg(orgId),
   ]);
+  const orgCurrency = org?.currency ?? 'GHS';
 
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a]));
 
@@ -27,7 +29,7 @@ export default async function DashboardPage() {
   const kpis = [
     { label: 'Open requests',   value: String(open.length),           delta: `${awaitingReview.length} awaiting review`, spark: [4,6,5,7,9,8,11,10,12,11,open.length],  color: 'var(--brand)' },
     { label: 'Awaiting review', value: String(awaitingReview.length), delta: 'SLA 1.4 d',                                spark: [2,3,2,3,4,4,5,4,5,awaitingReview.length], color: 'var(--warn)' },
-    { label: 'Spend (MTD)',     value: `$${spendMTD.toLocaleString()}`, delta: '+12% vs Apr',                            spark: [3,4,5,7,6,8,9,11,12,14,16,18,spendMTD/2000], color: 'var(--info)' },
+    { label: 'Spend (MTD)',     value: `${orgCurrency} ${spendMTD.toLocaleString()}`, delta: '+12% vs Apr',                            spark: [3,4,5,7,6,8,9,11,12,14,16,18,spendMTD/2000], color: 'var(--info)' },
     { label: 'Total requests',  value: String(requests.length),       delta: `${requests.filter(r=>r.status==='COMPLETED').length} completed`, spark: [3,4,5,5,6,6,7,7,8,requests.length], color: 'var(--good)' },
   ];
 
@@ -35,9 +37,13 @@ export default async function DashboardPage() {
     .sort((a, b) => b.submitted.localeCompare(a.submitted))
     .slice(0, 5);
 
-  // Top assets by request count + spend
+  const reqsByAsset = requests.reduce<Record<string, typeof requests>>((acc, r) => {
+    if (r.status !== 'DENIED') (acc[r.asset] ??= []).push(r);
+    return acc;
+  }, {});
+
   const assetStats = assets.map(a => {
-    const aReqs = requests.filter(r => r.asset === a.id && r.status !== 'DENIED');
+    const aReqs = reqsByAsset[a.id] ?? [];
     return { name: a.name, n: aReqs.length, spend: aReqs.reduce((s, r) => s + r.amount, 0) };
   }).filter(a => a.n > 0).sort((a, b) => b.n - a.n).slice(0, 5);
   const maxN = assetStats[0]?.n ?? 1;
@@ -98,7 +104,7 @@ export default async function DashboardPage() {
                     </td>
                     <td className="muted small">{asset?.name.split(' — ')[0]}</td>
                     <td><Pill status={r.status} /></td>
-                    <td className="num">${r.amount.toLocaleString()}</td>
+                    <td className="num">{r.currency} {r.amount.toLocaleString()}</td>
                     <td className="muted small">{r.deadline}</td>
                   </tr>
                 );
@@ -151,7 +157,7 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <div className="muted small num" style={{ fontVariantNumeric: 'tabular-nums' }}>{a.n} reqs</div>
-                  <div className="num" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 500 }}>${a.spend.toLocaleString()}</div>
+                  <div className="num" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 500 }}>{orgCurrency} {a.spend.toLocaleString()}</div>
                 </div>
               ))}
             </div>

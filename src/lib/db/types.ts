@@ -52,12 +52,21 @@ export interface ActivityItem {
   avHue?: number;
 }
 
+export interface SlackEvents {
+  new_request: boolean;
+  status_change: boolean;
+  receipt_submission: boolean;
+}
+
 export interface Organisation {
   id: string;
   name: string;
   ownerUid: string;
   createdAt: string;
   currency: string;
+  slackWebhook?: string;
+  slackChannel?: string;
+  slackEvents?: SlackEvents;
 }
 
 export interface Invite {

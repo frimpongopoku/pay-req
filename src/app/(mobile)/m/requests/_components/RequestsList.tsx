@@ -96,7 +96,7 @@ export function RequestsList({ requests, assetMap }: Props) {
                 <div className="meta">
                   <span>{asset?.name.split(' — ')[0]}</span>
                   <span>·</span>
-                  <span><b>${r.amount.toLocaleString()}</b></span>
+                  <span><b>{r.currency} {r.amount.toLocaleString()}</b></span>
                 </div>
               </div>
             </Link>
