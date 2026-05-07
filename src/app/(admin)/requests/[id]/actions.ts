@@ -6,8 +6,8 @@ import { notify } from '@/lib/slack';
 import type { RequestStatus } from '@/lib/db';
 
 const NEXT: Partial<Record<RequestStatus, RequestStatus>> = {
-  SUBMITTED:          'UNDER_REVIEW',
-  UNDER_REVIEW:       'APPROVED',
+  SUBMITTED:          'APPROVED',
+  UNDER_REVIEW:       'APPROVED',   // legacy
   APPROVED:           'PAID',
   PAID:               'RECEIPTS_SUBMITTED',
   RECEIPTS_SUBMITTED: 'COMPLETED',
@@ -16,8 +16,8 @@ const NEXT: Partial<Record<RequestStatus, RequestStatus>> = {
 };
 
 const PREV: Partial<Record<RequestStatus, RequestStatus>> = {
-  UNDER_REVIEW:       'SUBMITTED',
-  APPROVED:           'UNDER_REVIEW',
+  UNDER_REVIEW:       'SUBMITTED',   // legacy
+  APPROVED:           'SUBMITTED',
   PAID:               'APPROVED',
   RECEIPTS_SUBMITTED: 'PAID',
   COMPLETED:          'RECEIPTS_SUBMITTED',

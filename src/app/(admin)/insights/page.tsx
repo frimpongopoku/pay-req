@@ -4,17 +4,16 @@ import { Spark } from '@/components/ui/Spark';
 import { I } from '@/components/ui/icons';
 import type { Request, RequestStatus } from '@/lib/db';
 
-const STATUS_COLORS: Record<RequestStatus, string> = {
+const STATUS_COLORS: Partial<Record<RequestStatus, string>> = {
   SUBMITTED:          '#94a3b8',
-  UNDER_REVIEW:       '#f59e0b',
   APPROVED:           '#22c55e',
   PAID:               '#3b82f6',
   RECEIPTS_SUBMITTED: '#8b5cf6',
   COMPLETED:          '#14b8a6',
   DENIED:             '#ef4444',
 };
-const STATUS_LABELS: Record<RequestStatus, string> = {
-  SUBMITTED: 'Submitted', UNDER_REVIEW: 'Under review', APPROVED: 'Approved',
+const STATUS_LABELS: Partial<Record<RequestStatus, string>> = {
+  SUBMITTED: 'Submitted', APPROVED: 'Approved',
   PAID: 'Paid', RECEIPTS_SUBMITTED: 'Receipts in', COMPLETED: 'Completed', DENIED: 'Denied',
 };
 
@@ -99,7 +98,7 @@ export default async function InsightsPage() {
 
   const monthly = computeMonthlyBuckets(requests);
   const STAGE_COLORS: Partial<Record<RequestStatus, string>> = {
-    SUBMITTED: 'rgba(148,163,184,0.85)', UNDER_REVIEW: 'rgba(245,158,11,0.85)',
+    SUBMITTED: 'rgba(148,163,184,0.85)',
     APPROVED: 'rgba(34,197,94,0.85)', PAID: 'rgba(59,130,246,0.85)', COMPLETED: 'rgba(20,184,166,0.85)',
   };
   const MAX_H = Math.max(...monthly.map(b => Object.values(b.counts).reduce((s, v) => s + v, 0)), 1);

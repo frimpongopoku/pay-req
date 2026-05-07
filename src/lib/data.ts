@@ -25,7 +25,7 @@ export const ASSETS: Omit<Asset, 'orgId'>[] = [
 export const REQUESTS: Omit<Request, 'orgId'>[] = [
   {
     id: 'REQ-2418', asset: 'a1', title: 'Brake pad + rotor replacement', amount: 1840, currency: 'USD',
-    requester: 'Tomás Reyes', status: 'UNDER_REVIEW', deadline: 'May 9', submitted: 'May 5, 09:14',
+    requester: 'Tomás Reyes', status: 'SUBMITTED', deadline: 'May 9', submitted: 'May 5, 09:14',
     purpose: 'Front brake pads worn past 3mm — flagged on pre-trip inspection.',
     payee: 'Eastside Diesel LLC',
     attachments: ['inspection.pdf', 'quote-eastside.pdf', 'pad-photo.jpg'],
@@ -102,9 +102,9 @@ export const USERS = [
   { name: 'Park Min-jun', role: 'Employee',  depot: 'Long-haul',  n: 5,  hue: 260 },
 ];
 
-export const LIFECYCLE_STAGES = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'PAID', 'RECEIPTS_SUBMITTED', 'COMPLETED'] as const;
-export const STAGE_NAMES = ['Submitted', 'Under review', 'Approved', 'Paid', 'Receipts in', 'Completed'];
-export const STAGE_TIMES = ['May 5, 09:14', 'May 5, 09:42', 'May 5, 14:08', 'May 6, 10:30', 'May 8, 16:22', 'May 9, 09:10'];
+export const LIFECYCLE_STAGES = ['SUBMITTED', 'APPROVED', 'PAID', 'RECEIPTS_SUBMITTED', 'COMPLETED'] as const;
+export const STAGE_NAMES = ['Submitted', 'Approved', 'Paid', 'Receipts in', 'Completed'];
+export const STAGE_TIMES = ['May 5, 09:14', 'May 5, 14:08', 'May 6, 10:30', 'May 8, 16:22', 'May 9, 09:10'];
 
 export function getAsset(id: string) {
   return ASSETS.find(a => a.id === id);

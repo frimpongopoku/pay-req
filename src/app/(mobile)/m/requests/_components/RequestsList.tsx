@@ -7,7 +7,7 @@ import { MI } from '@/components/ui/icons';
 
 type FilterId = 'all' | 'open' | 'receipts' | 'completed' | 'denied';
 
-const STAGES = ['SUBMITTED','UNDER_REVIEW','APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'];
+const STAGES = ['SUBMITTED','APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'];
 
 function StagesMini({ stage, total = 6 }: { stage: number; total?: number }) {
   return (
@@ -80,7 +80,7 @@ export function RequestsList({ requests, assetMap }: Props) {
           </div>
         )}
         {filtered.map(r => {
-          const stage = STAGES.indexOf(r.status);
+          const stage = STAGES.indexOf(r.status === 'UNDER_REVIEW' ? 'SUBMITTED' : r.status);
           const asset = assetMap[r.asset];
           return (
             <Link key={r.id} href={`/m/requests/${r.id}`} style={{ textDecoration: 'none' }}>

@@ -4,7 +4,7 @@ import { getSessionUser } from '@/lib/session';
 import { MPill } from '@/components/ui/Pill';
 import { MI } from '@/components/ui/icons';
 
-const STAGES = ['SUBMITTED','UNDER_REVIEW','APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'];
+const STAGES = ['SUBMITTED','APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'];
 
 function StagesMini({ stage, total = 6 }: { stage: number; total?: number }) {
   return (
@@ -103,7 +103,7 @@ export default async function MobileHomePage() {
           </div>
           <div className="m-req-list">
             {recent.map(r => {
-              const stage = STAGES.indexOf(r.status);
+              const stage = STAGES.indexOf(r.status === 'UNDER_REVIEW' ? 'SUBMITTED' : r.status);
               return (
                 <Link key={r.id} href={`/m/requests/${r.id}`} style={{ textDecoration: 'none' }}>
                   <div className="m-req">

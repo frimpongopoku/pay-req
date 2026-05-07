@@ -21,7 +21,7 @@ export default async function DashboardPage() {
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a]));
 
   const open = requests.filter(r => !['COMPLETED', 'DENIED'].includes(r.status));
-  const awaitingReview = requests.filter(r => ['SUBMITTED', 'UNDER_REVIEW'].includes(r.status));
+  const awaitingReview = requests.filter(r => r.status === 'SUBMITTED');
   const spendMTD = requests
     .filter(r => r.status !== 'DENIED')
     .reduce((sum, r) => sum + r.amount, 0);
@@ -37,7 +37,7 @@ export default async function DashboardPage() {
     .sort((a, b) => b.submitted.localeCompare(a.submitted))
     .slice(0, 5);
 
-  const needsReview      = requests.filter(r => ['SUBMITTED', 'UNDER_REVIEW'].includes(r.status));
+  const needsReview      = requests.filter(r => r.status === 'SUBMITTED');
   const awaitingReceipts = requests.filter(r => r.status === 'PAID');
 
   const reqsByAsset = requests.reduce<Record<string, typeof requests>>((acc, r) => {

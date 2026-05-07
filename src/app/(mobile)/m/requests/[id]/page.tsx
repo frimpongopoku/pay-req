@@ -6,8 +6,8 @@ import { MPill } from '@/components/ui/Pill';
 import { MI } from '@/components/ui/icons';
 import { ReceiptUpload } from './_components/ReceiptUpload';
 
-const LIFECYCLE_STAGES = ['SUBMITTED','UNDER_REVIEW','APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'] as const;
-const STAGE_NAMES = ['Submitted','Under review','Approved','Paid','Receipts in','Completed'];
+const LIFECYCLE_STAGES = ['SUBMITTED','APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'] as const;
+const STAGE_NAMES = ['Submitted','Approved','Paid','Receipts in','Completed'];
 
 export default async function MobileRequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,7 +21,8 @@ export default async function MobileRequestDetailPage({ params }: { params: Prom
   if (!request) notFound();
 
   const asset = assets.find(a => a.id === request.asset);
-  const stageIdx = LIFECYCLE_STAGES.indexOf(request.status as typeof LIFECYCLE_STAGES[number]);
+  const normalizedStatus = request.status === 'UNDER_REVIEW' ? 'SUBMITTED' : request.status;
+  const stageIdx = LIFECYCLE_STAGES.indexOf(normalizedStatus as typeof LIFECYCLE_STAGES[number]);
 
   return (
     <>

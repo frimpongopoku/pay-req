@@ -11,7 +11,7 @@ type FilterId = 'all' | 'open' | 'mine' | 'APPROVED' | 'PAID';
 const TABS: { id: FilterId; label: string; count: (r: Request[]) => number }[] = [
   { id: 'all',      label: 'All',      count: r => r.length },
   { id: 'open',     label: 'Open',     count: r => r.filter(x => !['COMPLETED', 'DENIED'].includes(x.status)).length },
-  { id: 'mine',     label: 'Needs me', count: r => r.filter(x => ['UNDER_REVIEW', 'SUBMITTED'].includes(x.status)).length },
+  { id: 'mine',     label: 'Needs me', count: r => r.filter(x => x.status === 'SUBMITTED').length },
   { id: 'APPROVED', label: 'Approved', count: r => r.filter(x => x.status === 'APPROVED').length },
   { id: 'PAID',     label: 'Paid',     count: r => r.filter(x => x.status === 'PAID').length },
 ];
@@ -27,7 +27,7 @@ export function RequestsTable({ requests, assetMap }: Props) {
   const filtered = requests.filter(r => {
     if (filter === 'all') return true;
     if (filter === 'open') return !['COMPLETED', 'DENIED'].includes(r.status);
-    if (filter === 'mine') return ['UNDER_REVIEW', 'SUBMITTED'].includes(r.status);
+    if (filter === 'mine') return r.status === 'SUBMITTED';
     return r.status === filter;
   });
 

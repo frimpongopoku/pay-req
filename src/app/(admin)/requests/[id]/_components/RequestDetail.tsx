@@ -9,13 +9,13 @@ import { advanceStatus, rewindStatus, denyRequest, addAttachments } from '../act
 import { FileUpload } from '@/components/ui/FileUpload';
 
 const LIFECYCLE_STAGES: RequestStatus[] = [
-  'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'PAID', 'RECEIPTS_SUBMITTED', 'COMPLETED',
+  'SUBMITTED', 'APPROVED', 'PAID', 'RECEIPTS_SUBMITTED', 'COMPLETED',
 ];
-const STAGE_NAMES = ['Submitted', 'Under review', 'Approved', 'Paid', 'Receipts in', 'Completed'];
+const STAGE_NAMES = ['Submitted', 'Approved', 'Paid', 'Receipts in', 'Completed'];
 
 const NEXT_ACTIONS: Record<RequestStatus, { label: string; primary: boolean; alt?: string }> = {
-  SUBMITTED:          { label: 'Move to review',    primary: true },
-  UNDER_REVIEW:       { label: 'Approve',           primary: true, alt: 'Deny' },
+  SUBMITTED:          { label: 'Approve',           primary: true, alt: 'Deny' },
+  UNDER_REVIEW:       { label: 'Approve',           primary: true, alt: 'Deny' }, // legacy
   APPROVED:           { label: 'Mark as paid',      primary: true },
   PAID:               { label: 'Awaiting receipts', primary: false },
   RECEIPTS_SUBMITTED: { label: 'Mark complete',     primary: true },
@@ -34,7 +34,8 @@ interface Props {
 export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount, orgCurrency }: Props) {
   const [isPending, startTransition] = useTransition();
 
-  const stageIdx = LIFECYCLE_STAGES.indexOf(r.status);
+  const displayStatus = r.status === 'UNDER_REVIEW' ? 'SUBMITTED' : r.status;
+  const stageIdx = LIFECYCLE_STAGES.indexOf(displayStatus);
   const action = NEXT_ACTIONS[r.status];
   const canRewind = stageIdx > 0 && r.status !== 'DENIED';
   const canAdvance = r.status !== 'COMPLETED';
