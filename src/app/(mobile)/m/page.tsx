@@ -45,6 +45,11 @@ export default async function MobileHomePage() {
         <div className="greet">
           <div className="hello">{today}</div>
           <div className="name">Hi, {firstName} 👋</div>
+          {org && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 5, padding: '3px 10px', borderRadius: 999, background: 'var(--m-accent-soft)', border: '1px solid rgba(99,102,241,0.15)' }}>
+              <span style={{ fontSize: 10, color: 'var(--m-accent)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{org.name}</span>
+            </div>
+          )}
         </div>
         <div className="m-icon-btn">{MI.bell}</div>
       </div>

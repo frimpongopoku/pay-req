@@ -28,6 +28,11 @@ export default async function MobileProfilePage() {
         <div className="greet">
           <div className="hello">{user?.role} · {user?.depot || 'No depot'}</div>
           <div className="name" style={{ fontSize: 24 }}>{user?.name ?? 'Unknown'}</div>
+          {org && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 5, padding: '3px 10px', borderRadius: 999, background: 'var(--m-accent-soft)', border: '1px solid rgba(99,102,241,0.15)' }}>
+              <span style={{ fontSize: 10, color: 'var(--m-accent)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{org.name}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -59,9 +64,15 @@ export default async function MobileProfilePage() {
 
       <div className="m-card">
         <h4>Account</h4>
-        <div style={{ display: 'grid', gap: 6, fontSize: 13, color: 'var(--m-ink-2)' }}>
+        <div style={{ display: 'grid', gap: 8, fontSize: 13, color: 'var(--m-ink-2)' }}>
           <div>{user?.email}</div>
-          <div>{user?.role} · {user?.depot || 'No depot assigned'}</div>
+          <div>{user?.role}{user?.depot ? ` · ${user.depot}` : ''}</div>
+          {org && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingTop: 4, borderTop: '1px solid var(--m-line)' }}>
+              <span style={{ color: 'var(--m-ink-3)', fontSize: 12 }}>Organisation</span>
+              <span style={{ marginLeft: 'auto', fontWeight: 500, color: 'var(--m-ink-0)' }}>{org.name}</span>
+            </div>
+          )}
         </div>
       </div>
 
