@@ -161,8 +161,10 @@ export const FileUpload = forwardRef<FileUploadHandle, Props>(
         <div className="attach">
           {remoteFiles.map(f => (
             <div key={f.url} className="a" style={{ position: 'relative' }}>
-              <DesktopThumb src={f.url} name={f.name} />
-              <div className="name" title={f.name}>{f.name}</div>
+              <a href={f.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'contents' }}>
+                <DesktopThumb src={f.url} name={f.name} />
+                <div className="name" title={f.name}>{f.name}</div>
+              </a>
               <RemoveBtn onClick={() => removeRemote(f.url)} />
             </div>
           ))}

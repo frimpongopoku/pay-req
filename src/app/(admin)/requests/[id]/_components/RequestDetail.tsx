@@ -177,8 +177,8 @@ export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount, o
             <AttachmentsPanel requestId={r.id} existing={r.attachments} />
           </div>
 
-          {/* Discussion */}
-          <div className="card glass">
+          {/* Discussion — not yet implemented */}
+          {/* <div className="card glass">
             <div className="card-h">
               <h3>Discussion</h3>
               <span className="sub">Synced to Slack</span>
@@ -198,7 +198,7 @@ export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount, o
               <input type="text" placeholder="Reply… (Slack-synced)" style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', fontSize: 13, fontFamily: 'inherit' }} />
               <button className="btn primary small">Send</button>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Right column */}
@@ -240,35 +240,6 @@ export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount, o
             </div>
           </div>
 
-          {/* Slack preview */}
-          <div className="card glass">
-            <div className="card-h">
-              <h3>Slack notification</h3>
-              <span className="sub">posted to {asset.slack ?? '#requests'}</span>
-            </div>
-            <div className="slack-msg">
-              <div className="slack-h">
-                <span className="name">PayReq</span>
-                <span className="muted small" style={{ background: '#e8e8e8', padding: '0 4px', borderRadius: 3, fontSize: 10 }}>APP</span>
-                <span className="time">{r.submitted}</span>
-              </div>
-              <div className="body">
-                🛠 New maintenance request on <b>{asset.name.split(' — ')[0]}</b><br />
-                <b>{r.title}</b>
-              </div>
-              <div className="fields">
-                <div><div className="k">Amount</div><div className="v">{r.currency} {r.amount.toLocaleString()}</div></div>
-                <div><div className="k">Requester</div><div className="v">{r.requester}</div></div>
-                <div><div className="k">Deadline</div><div className="v">{r.deadline}</div></div>
-                <div><div className="k">Assigned to</div><div className="v">{asset.managers[0]}</div></div>
-              </div>
-              <div className="slack-actions">
-                <button className="slack-btn primary">Approve</button>
-                <button className="slack-btn">Deny</button>
-                <button className="slack-btn">Open in PayReq ↗</button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

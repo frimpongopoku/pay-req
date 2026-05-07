@@ -2,7 +2,8 @@ import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { Spark } from '@/components/ui/Spark';
 import { I } from '@/components/ui/icons';
-import type { Request, RequestStatus } from '@/lib/db';
+import type { Request, Asset, RequestStatus } from '@/lib/db';
+import { AssetSpendCharts } from './_components/AssetSpendCharts';
 
 const STATUS_COLORS: Partial<Record<RequestStatus, string>> = {
   SUBMITTED:          '#94a3b8',
@@ -48,6 +49,45 @@ function Donut({ dist }: { dist: { k: string; v: number; c: string }[] }) {
   );
 }
 
+function computeAssetSpendByMonth(requests: Request[], assets: Asset[], topN = 5) {
+  const now = new Date();
+  const MONTH_COUNT = 6;
+  const months: { label: string; byAsset: Record<string, number> }[] = [];
+  for (let i = MONTH_COUNT - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ label: MONTH_ABBR[d.getMonth()], byAsset: {} });
+  }
+
+  // Rank assets by total spend
+  const totalSpend: Record<string, number> = {};
+  for (const r of requests) {
+    if (r.status === 'DENIED') continue;
+    totalSpend[r.asset] = (totalSpend[r.asset] ?? 0) + r.amount;
+  }
+  const topAssets = assets
+    .filter(a => totalSpend[a.id])
+    .sort((a, b) => (totalSpend[b.id] ?? 0) - (totalSpend[a.id] ?? 0))
+    .slice(0, topN);
+
+  const shortName = (a: Asset) => a.name.split(' — ')[0];
+
+  for (const r of requests) {
+    if (r.status === 'DENIED') continue;
+    const asset = topAssets.find(a => a.id === r.asset);
+    if (!asset) continue;
+    const iso = r.submittedAt ?? null;
+    if (!iso) continue;
+    const d = new Date(iso);
+    const monthsAgo = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+    if (monthsAgo < 0 || monthsAgo >= MONTH_COUNT) continue;
+    const bucket = months[MONTH_COUNT - 1 - monthsAgo];
+    const key = shortName(asset);
+    bucket.byAsset[key] = (bucket.byAsset[key] ?? 0) + r.amount;
+  }
+
+  return { months, assetNames: topAssets.map(shortName) };
+}
+
 function computeMonthlyBuckets(requests: Request[]) {
   const now = new Date();
   const buckets: { label: string; counts: Partial<Record<RequestStatus, number>> }[] = [];
@@ -85,9 +125,9 @@ export default async function InsightsPage() {
   const spend = requests.filter(r => r.status !== 'DENIED').reduce((s, r) => s + r.amount, 0);
 
   const dist = (Object.keys(STATUS_COLORS) as RequestStatus[]).map(s => ({
-    k: STATUS_LABELS[s],
+    k: STATUS_LABELS[s] ?? s,
     v: requests.filter(r => r.status === s).length,
-    c: STATUS_COLORS[s],
+    c: STATUS_COLORS[s] ?? '#94a3b8',
   })).filter(d => d.v > 0);
 
   const assetSpend = assets.map(a => ({
@@ -96,6 +136,7 @@ export default async function InsightsPage() {
   })).filter(a => a.spend > 0).sort((a, b) => b.spend - a.spend).slice(0, 5);
   const maxSpend = assetSpend[0]?.spend ?? 1;
 
+  const assetSpendOverTime = computeAssetSpendByMonth(requests, assets);
   const monthly = computeMonthlyBuckets(requests);
   const STAGE_COLORS: Partial<Record<RequestStatus, string>> = {
     SUBMITTED: 'rgba(148,163,184,0.85)',
@@ -231,6 +272,23 @@ export default async function InsightsPage() {
               </div>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Asset spend over time */}
+      <div className="card glass" style={{ marginTop: 16 }}>
+        <div className="card-h">
+          <h3>Asset spend over time</h3>
+          <span className="sub">Last 6 months · top 5 assets · excluding denied</span>
+        </div>
+        {assetSpendOverTime.assetNames.length === 0 ? (
+          <div className="muted small">No dated spend data yet.</div>
+        ) : (
+          <AssetSpendCharts
+            months={assetSpendOverTime.months}
+            assetNames={assetSpendOverTime.assetNames}
+            currency={orgCurrency}
+          />
         )}
       </div>
     </div>
