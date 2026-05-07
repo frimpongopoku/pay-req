@@ -11,7 +11,6 @@ function TabBar() {
       <Link href="/m" className="tab">{MI.home}<span>Home</span></Link>
       <Link href="/m/requests" className="tab">{MI.inbox}<span>Requests</span></Link>
       <Link href="/m/create" className="fab">{MI.plus}</Link>
-      <Link href="/m/updates" className="tab">{MI.msg}<span>Updates</span></Link>
       <Link href="/m/profile" className="tab">{MI.profile}<span>Me</span></Link>
     </div>
   );

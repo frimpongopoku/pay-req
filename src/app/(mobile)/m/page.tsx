@@ -34,7 +34,6 @@ export default async function MobileHomePage() {
 
   const recent = myRequests.slice(0, 3);
   const hero   = myRequests.find(r => !['COMPLETED','DENIED'].includes(r.status));
-  const pendingReceipts = myRequests.find(r => r.status === 'PAID');
 
   const firstName = user?.name.split(' ')[0] ?? '';
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -79,19 +78,11 @@ export default async function MobileHomePage() {
           <div className="lbl">New request</div>
           <div className="sub">Repair, parts, service</div>
         </Link>
-        {pendingReceipts ? (
-          <Link href={`/m/requests/${pendingReceipts.id}`} className="a alt" style={{ textDecoration: 'none' }}>
-            <div className="ic-w">{MI.cam}</div>
-            <div className="lbl">Upload receipt</div>
-            <div className="sub">For {pendingReceipts.id}</div>
-          </Link>
-        ) : (
-          <div className="a alt">
-            <div className="ic-w">{MI.cam}</div>
-            <div className="lbl">Upload receipt</div>
-            <div className="sub">No pending receipts</div>
-          </div>
-        )}
+        <Link href="/m/requests" className="a alt" style={{ textDecoration: 'none' }}>
+          <div className="ic-w">{MI.inbox}</div>
+          <div className="lbl">My requests</div>
+          <div className="sub">{myRequests.length} total</div>
+        </Link>
       </div>
 
       {/* Recent requests */}
