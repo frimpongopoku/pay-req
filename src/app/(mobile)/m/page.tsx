@@ -28,9 +28,9 @@ export default async function MobileHomePage() {
 
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a]));
 
-  const myRequests = allRequests.filter(r =>
-    r.requesterUid === user?.id || r.requester === user?.name
-  );
+  const myRequests = allRequests
+    .filter(r => r.requesterUid === user?.id || r.requester === user?.name)
+    .sort((a, b) => (b.submittedAt ?? b.submitted).localeCompare(a.submittedAt ?? a.submitted));
 
   const recent = myRequests.slice(0, 3);
   const hero   = myRequests.find(r => !['COMPLETED','DENIED'].includes(r.status));

@@ -10,9 +10,9 @@ export default async function MobileRequestsPage() {
     db.listAssets(orgId),
   ]);
 
-  const myRequests = allRequests.filter(r =>
-    r.requesterUid === user?.id || r.requester === user?.name
-  );
+  const myRequests = allRequests
+    .filter(r => r.requesterUid === user?.id || r.requester === user?.name)
+    .sort((a, b) => (b.submittedAt ?? b.submitted).localeCompare(a.submittedAt ?? a.submitted));
 
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a]));
 
