@@ -28,6 +28,7 @@ export function CreateForm({ assets, vendors, currency }: Props) {
   const [priority, setPriority] = useState<'low' | 'med' | 'high'>('med');
   const [assetId, setAssetId]   = useState('');
   const [deadline, setDeadline] = useState<Date | undefined>(undefined);
+  const [payee, setPayee]       = useState('');
 
   const fieldStyle: React.CSSProperties = {
     width: '100%', padding: '12px 14px', borderRadius: 14,
@@ -138,25 +139,60 @@ export function CreateForm({ assets, vendors, currency }: Props) {
           <input type="hidden" name="deadline" value={deadline ? format(deadline, 'yyyy-MM-dd') : ''} readOnly />
         </div>
 
-        {/* Payee with vendor suggestions */}
+        {/* Payee with saved vendor chips */}
         <div className="m-form-field">
           <label htmlFor="payee">Payee / Vendor</label>
+
           {vendors.length > 0 && (
-            <datalist id="vendors-list">
-              {vendors.map(v => <option key={v} value={v} />)}
-            </datalist>
-          )}
-          <input
-            id="payee" name="payee" required
-            placeholder="e.g. Eastside Diesel LLC"
-            list={vendors.length > 0 ? 'vendors-list' : undefined}
-            style={fieldStyle}
-          />
-          {vendors.length > 0 && (
-            <div style={{ fontSize: 11.5, color: 'var(--m-ink-3)', marginTop: 4 }}>
-              Tap to see your previously used vendors
+            <div style={{
+              display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2,
+              marginBottom: 10, scrollbarWidth: 'none',
+            }}>
+              {vendors.map(v => (
+                <button
+                  key={v} type="button"
+                  onClick={() => setPayee(v)}
+                  style={{
+                    flexShrink: 0,
+                    padding: '6px 13px', borderRadius: 999,
+                    fontSize: 13, fontFamily: 'inherit', fontWeight: 500,
+                    border: `1.5px solid ${payee === v ? 'var(--m-accent)' : 'var(--m-line-strong)'}`,
+                    background: payee === v ? 'var(--m-accent-soft)' : 'rgba(255,252,247,0.7)',
+                    color: payee === v ? 'var(--m-accent)' : 'var(--m-ink-1)',
+                    cursor: 'pointer', whiteSpace: 'nowrap',
+                    transition: 'all 120ms ease',
+                  }}
+                >
+                  {v}
+                </button>
+              ))}
             </div>
           )}
+
+          <div style={{ position: 'relative' }}>
+            <input
+              id="payee" name="payee" required
+              placeholder={vendors.length > 0 ? 'Or type a new vendor…' : 'e.g. Eastside Diesel LLC'}
+              value={payee}
+              onChange={e => setPayee(e.target.value)}
+              style={{ ...fieldStyle, paddingRight: payee ? 40 : 14 }}
+            />
+            {payee && (
+              <button
+                type="button"
+                onClick={() => setPayee('')}
+                style={{
+                  position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                  background: 'rgba(28,25,23,0.08)', border: 'none', borderRadius: '50%',
+                  width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', color: 'var(--m-ink-2)', fontSize: 14, lineHeight: 1,
+                }}
+                aria-label="Clear vendor"
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Purpose */}

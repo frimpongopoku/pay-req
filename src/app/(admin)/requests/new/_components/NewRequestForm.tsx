@@ -24,6 +24,7 @@ export function NewRequestForm({ assets, vendors, currency }: Props) {
   const [selectedAssetId, setSelectedAssetId] = useState(assets[0]?.id ?? '');
   const [deadline, setDeadline] = useState<Date | undefined>(undefined);
   const [priority, setPriority] = useState<'low' | 'med' | 'high'>('med');
+  const [payee, setPayee] = useState('');
 
   const selectedAsset = assets.find(a => a.id === selectedAssetId);
   const deadlineDays = deadline
@@ -134,15 +135,49 @@ export function NewRequestForm({ assets, vendors, currency }: Props) {
               <div className="field">
                 <label>Payee</label>
                 {vendors.length > 0 && (
-                  <datalist id="admin-vendors-list">
-                    {vendors.map(v => <option key={v} value={v} />)}
-                  </datalist>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                    {vendors.map(v => (
+                      <button
+                        key={v} type="button"
+                        onClick={() => setPayee(v)}
+                        style={{
+                          padding: '4px 11px', borderRadius: 999,
+                          fontSize: 12, fontFamily: 'inherit', fontWeight: 500,
+                          border: `1.5px solid ${payee === v ? 'var(--brand)' : 'var(--line-strong)'}`,
+                          background: payee === v ? 'var(--brand-soft)' : 'rgba(255,255,255,0.7)',
+                          color: payee === v ? 'var(--brand)' : 'var(--ink-1)',
+                          cursor: 'pointer', transition: 'all 100ms ease',
+                        }}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
                 )}
-                <input
-                  type="text" name="payee" required
-                  placeholder="e.g. Eastside Diesel LLC"
-                  list={vendors.length > 0 ? 'admin-vendors-list' : undefined}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text" name="payee" required
+                    placeholder={vendors.length > 0 ? 'Or type a new vendor…' : 'e.g. Eastside Diesel LLC'}
+                    value={payee}
+                    onChange={e => setPayee(e.target.value)}
+                    style={{ paddingRight: payee ? 32 : undefined }}
+                  />
+                  {payee && (
+                    <button
+                      type="button"
+                      onClick={() => setPayee('')}
+                      style={{
+                        position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                        background: 'rgba(15,23,42,0.07)', border: 'none', borderRadius: '50%',
+                        width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', color: 'var(--ink-2)', fontSize: 13, lineHeight: 1,
+                      }}
+                      aria-label="Clear vendor"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="field">
