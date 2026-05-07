@@ -1,10 +1,13 @@
 'use client';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import type { Request, Asset } from '@/lib/db';
 import { Avatar } from '@/components/ui/Avatar';
 import { Pill } from '@/components/ui/Pill';
 import { I } from '@/components/ui/icons';
+import { RowMenu } from '@/components/ui/RowMenu';
+import { AmendRequestModal } from './AmendRequestModal';
+import { deleteRequest } from '../actions';
 
 type FilterId = 'all' | 'open' | 'mine' | 'APPROVED' | 'PAID';
 
@@ -23,6 +26,8 @@ interface Props {
 
 export function RequestsTable({ requests, assetMap }: Props) {
   const [filter, setFilter] = useState<FilterId>('all');
+  const [amending, setAmending] = useState<Request | null>(null);
+  const [, startTransition] = useTransition();
 
   const filtered = requests.filter(r => {
     if (filter === 'all') return true;
@@ -32,6 +37,8 @@ export function RequestsTable({ requests, assetMap }: Props) {
   });
 
   return (
+    <>
+    {amending && <AmendRequestModal request={amending} onClose={() => setAmending(null)} />}
     <div className="card glass" style={{ padding: 0, overflow: 'hidden' }}>
       {/* Tabs */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '10px 14px', borderBottom: '1px solid var(--line)' }}>
@@ -106,7 +113,13 @@ export function RequestsTable({ requests, assetMap }: Props) {
                 <td className="num">{r.currency} {r.amount.toLocaleString()}</td>
                 <td className="muted small">{r.deadline}</td>
                 <td>
-                  <button className="btn ghost" style={{ padding: 4 }}>{I.more}</button>
+                  <RowMenu items={[
+                    { label: 'Amend request', onClick: () => setAmending(r) },
+                    { label: 'Delete request', danger: true, onClick: () => {
+                      if (!confirm(`Delete "${r.title}"? This cannot be undone.`)) return;
+                      startTransition(() => deleteRequest(r.id));
+                    }},
+                  ]} />
                 </td>
               </tr>
             );
@@ -114,5 +127,6 @@ export function RequestsTable({ requests, assetMap }: Props) {
         </tbody>
       </table>
     </div>
+    </>
   );
 }

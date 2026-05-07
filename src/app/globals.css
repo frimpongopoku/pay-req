@@ -34,8 +34,8 @@
   --r-xl: 22px;
 
   /* Mobile tokens */
-  --m-bg-0: #fdf8f3;
-  --m-bg-1: #faf3ec;
+  --m-bg-0: #f8fafc;
+  --m-bg-1: #f1f5f9;
   --m-ink-0: #1c1917;
   --m-ink-1: #292524;
   --m-ink-2: #57534e;
@@ -301,6 +301,18 @@ body {
   transition: background 80ms;
 }
 .action-row-info:hover { background: rgba(14,165,233,0.09); }
+
+/* ─── Row context menu items ─── */
+.row-menu-item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 9px 14px; border: none; background: transparent;
+  font-size: 13px; color: var(--ink-0); cursor: pointer;
+  text-align: left; font-family: inherit; transition: background 60ms;
+}
+.row-menu-item:hover { background: rgba(15,23,42,0.04); }
+.row-menu-item:disabled { opacity: 0.4; cursor: default; }
+.row-menu-item.danger { color: var(--bad); }
+.row-menu-item.danger:hover { background: rgba(239,68,68,0.05); }
 
 /* ─── KPI cards ─── */
 .kpi {
@@ -612,9 +624,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .mobile-shell {
   min-height: 100vh;
   background:
-    radial-gradient(600px 400px at 100% -10%, rgba(245,158,11,0.18), transparent 55%),
-    radial-gradient(500px 400px at -10% 110%, rgba(99,102,241,0.16), transparent 55%),
-    linear-gradient(180deg, #fdf8f3 0%, #f5e9dc 100%);
+    radial-gradient(600px 400px at 100% -10%, rgba(99,102,241,0.10), transparent 55%),
+    radial-gradient(500px 400px at -10% 110%, rgba(99,102,241,0.08), transparent 55%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   font-family: var(--font-inter), -apple-system, system-ui, sans-serif;
   color: var(--m-ink-0);
   letter-spacing: -0.01em;
@@ -891,7 +903,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .m-form-field .files .f { width: 64px; display: flex; flex-direction: column; gap: 4px; }
 .m-form-field .files .f .th {
   width: 64px; height: 64px; border-radius: 12px;
-  background: repeating-linear-gradient(45deg, rgba(28,25,23,0.06) 0 1px, transparent 1px 8px), linear-gradient(135deg, #f5e9dc, #e7d5c0);
+  background: repeating-linear-gradient(45deg, rgba(15,23,42,0.06) 0 1px, transparent 1px 8px), linear-gradient(135deg, #e2e8f0, #cbd5e1);
   display: flex; align-items: center; justify-content: center;
   font-family: ui-monospace, monospace; font-size: 9.5px; color: var(--m-ink-2);
   position: relative; border: 1px solid var(--m-line);
@@ -1108,9 +1120,9 @@ a:active .m-hero {
 @media (min-width: 768px) {
   .mobile-shell {
     background:
-      radial-gradient(700px 500px at 85% -20%, rgba(245,158,11,0.15), transparent 55%),
-      radial-gradient(700px 500px at 15% 120%, rgba(99,102,241,0.13), transparent 55%),
-      linear-gradient(180deg, #fdf8f3 0%, #f5e9dc 100%);
+      radial-gradient(700px 500px at 85% -20%, rgba(99,102,241,0.08), transparent 55%),
+      radial-gradient(700px 500px at 15% 120%, rgba(99,102,241,0.06), transparent 55%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   }
 
   .m-status,

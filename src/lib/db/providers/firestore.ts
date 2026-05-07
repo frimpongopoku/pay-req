@@ -182,4 +182,16 @@ export class FirestoreRepository implements IRepository {
   async deleteInvite(id: string): Promise<void> {
     await fs().collection('invites').doc(id).delete();
   }
+
+  async deleteRequest(id: string): Promise<void> {
+    await fs().collection('requests').doc(id).delete();
+  }
+
+  async deleteAsset(id: string): Promise<void> {
+    await fs().collection('assets').doc(id).delete();
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await fs().collection('users').doc(id).delete();
+  }
 }

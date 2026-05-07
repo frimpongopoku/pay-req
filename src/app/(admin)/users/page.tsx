@@ -4,6 +4,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { I } from '@/components/ui/icons';
 import { InviteButton } from './_components/InviteModal';
 import { RevokeButton } from './_components/RevokeButton';
+import { UserMenu } from './_components/UserMenu';
 
 export default async function UsersPage() {
   const db = getDb();
@@ -69,7 +70,7 @@ export default async function UsersPage() {
                 </td>
                 <td className="small">{u.depot}</td>
                 <td className="num">{reqCountByName[u.name] ?? 0}</td>
-                <td><button className="btn ghost" style={{ padding: 4 }}>{I.more}</button></td>
+                <td><UserMenu userId={u.id} currentRole={u.role} isSelf={u.id === user?.id} /></td>
               </tr>
             ))}
           </tbody>

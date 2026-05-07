@@ -18,6 +18,7 @@ export interface IRepository {
   createRequest(data: Omit<Request, 'id'>): Promise<Request>;
   updateRequest(id: string, patch: Partial<Omit<Request, 'id'>>): Promise<Request | null>;
   upsertRequest(id: string, data: Omit<Request, 'id'>): Promise<Request>;
+  deleteRequest(id: string): Promise<void>;
 
   // ── Assets ────────────────────────────────────────────────────────────────
   listAssets(orgId: string): Promise<Asset[]>;
@@ -25,11 +26,13 @@ export interface IRepository {
   createAsset(data: Omit<Asset, 'id'>): Promise<Asset>;
   updateAsset(id: string, patch: Partial<Omit<Asset, 'id'>>): Promise<Asset | null>;
   upsertAsset(id: string, data: Omit<Asset, 'id'>): Promise<Asset>;
+  deleteAsset(id: string): Promise<void>;
 
   // ── Users ─────────────────────────────────────────────────────────────────
   listUsers(orgId: string): Promise<User[]>;
   getUser(id: string): Promise<User | null>;
   upsertUser(id: string, data: Omit<User, 'id'>): Promise<User>;
+  deleteUser(id: string): Promise<void>;
 
   // ── Activity ──────────────────────────────────────────────────────────────
   listActivity(orgId: string, limit?: number): Promise<ActivityItem[]>;

@@ -189,6 +189,10 @@ export class PostgresRepository implements IRepository {
     return this.getRequest(id);
   }
 
+  async deleteRequest(id: string): Promise<void> {
+    await db()`DELETE FROM requests WHERE id = ${id}`;
+  }
+
   async upsertRequest(id: string, data: Omit<Request, 'id'>): Promise<Request> {
     await db()`
       INSERT INTO requests (
@@ -254,6 +258,10 @@ export class PostgresRepository implements IRepository {
     return this.getAsset(id);
   }
 
+  async deleteAsset(id: string): Promise<void> {
+    await db()`DELETE FROM assets WHERE id = ${id}`;
+  }
+
   async upsertAsset(id: string, data: Omit<Asset, 'id'>): Promise<Asset> {
     await db()`
       INSERT INTO assets (id, org_id, name, tag, type, details, tags, managers, slack)
@@ -293,6 +301,10 @@ export class PostgresRepository implements IRepository {
         org_id = EXCLUDED.org_id, depot = EXCLUDED.depot, hue = EXCLUDED.hue
     `;
     return { id, ...data };
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db()`DELETE FROM users WHERE id = ${id}`;
   }
 
   // ── Activity ──────────────────────────────────────────────────────────────

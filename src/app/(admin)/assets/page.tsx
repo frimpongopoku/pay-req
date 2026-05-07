@@ -2,6 +2,7 @@ import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { I } from '@/components/ui/icons';
 import { CreateAssetModal } from './_components/CreateAssetModal';
+import { AssetMenu } from './_components/AssetMenu';
 import type { AssetType } from '@/lib/db/types';
 
 const TYPE_ICON: Record<AssetType, keyof typeof I> = {
@@ -76,7 +77,7 @@ export default async function AssetsPage() {
                     {a.tags?.map(t => <span key={t} className="chip" style={{ fontSize: 11, background: 'var(--brand-soft)', color: 'var(--brand)', borderColor: 'rgba(99,102,241,0.2)' }}>{t}</span>)}
                   </div>
                 </div>
-                <button className="btn ghost" style={{ padding: 4 }}>{I.more}</button>
+                <AssetMenu asset={a} managers={managers} />
               </div>
               <div className="grid g-2" style={{ gap: 8, fontSize: 12.5 }}>
                 <div className="muted">Managers</div>

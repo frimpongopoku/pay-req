@@ -41,3 +41,20 @@ export async function revokeInvite(id: string) {
   await getDb().deleteInvite(id);
   revalidatePath('/users');
 }
+
+export async function removeUser(targetId: string) {
+  const currentUser = await getSessionUser();
+  if (!currentUser?.orgId || currentUser.id === targetId) return;
+  await getDb().deleteUser(targetId);
+  revalidatePath('/users');
+}
+
+export async function changeUserRole(targetId: string, role: 'Admin' | 'Manager' | 'Employee') {
+  const currentUser = await getSessionUser();
+  if (!currentUser?.orgId || currentUser.id === targetId) return;
+  const db = getDb();
+  const target = await db.getUser(targetId);
+  if (!target || target.orgId !== currentUser.orgId) return;
+  await db.upsertUser(targetId, { ...target, role });
+  revalidatePath('/users');
+}
