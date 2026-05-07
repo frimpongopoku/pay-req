@@ -25,8 +25,6 @@ export default async function RequestsPage() {
           </div>
         </div>
         <div className="spacer" />
-        <button className="btn">{I.filter}Filters</button>
-        <button className="btn">{I.download}Export CSV</button>
         <Link href="/requests/new" className="btn primary">{I.plus}New request</Link>
       </div>
 
