@@ -113,6 +113,13 @@ function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
         },
       ],
     });
+  } else {
+    blocks.push({
+      type: 'context',
+      elements: [
+        { type: 'mrkdwn', text: `🔗 *${data.requestId}* — set \`NEXT_PUBLIC_APP_URL\` in your environment to get a direct link here.` },
+      ],
+    });
   }
 
   return blocks;
