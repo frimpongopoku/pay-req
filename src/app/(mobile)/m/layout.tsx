@@ -12,6 +12,7 @@ function TabBar() {
       <Link href="/m/requests" className="tab">{MI.inbox}<span>Requests</span></Link>
       <Link href="/m/create" className="fab">{MI.plus}</Link>
       <Link href="/m/profile" className="tab">{MI.profile}<span>Me</span></Link>
+      <span className="tab" aria-hidden="true" style={{ visibility: 'hidden', pointerEvents: 'none' }} />
     </div>
   );
 }
