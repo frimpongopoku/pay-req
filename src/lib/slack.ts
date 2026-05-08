@@ -145,13 +145,18 @@ export async function notify(
 
     const blocks = buildBlocks(event, data);
 
-    await fetch(org.slackWebhook, {
+    const res = await fetch(org.slackWebhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ blocks }),
+      cache: 'no-store',
     });
-  } catch {
-    // Fire-and-forget — never let Slack failures break the request flow
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      console.error(`[slack] webhook returned ${res.status}: ${body}`);
+    }
+  } catch (err) {
+    console.error('[slack] notify failed:', err);
   }
 }
 
