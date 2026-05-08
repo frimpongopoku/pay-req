@@ -946,7 +946,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 /* Mobile CTA */
 .m-cta {
   position: fixed; left: 0; right: 0; bottom: 0;
-  padding: 14px 22px 28px;
+  padding: 14px 22px 96px;
   background: linear-gradient(180deg, transparent 0%, rgba(241,245,249,0.97) 30%);
   backdrop-filter: blur(8px); z-index: 40;
 }
