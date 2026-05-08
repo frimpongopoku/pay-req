@@ -13,7 +13,7 @@ function StagesMini({ stage }: { stage: number }) {
   return (
     <div className="stages-mini">
       {STAGES.map((_, i) => (
-        <div key={i} className={'s' + (i < stage ? ' done' : i === stage ? ' cur' : '')} />
+        <div key={i} className={'s' + (i <= stage ? ' done' : '')} />
       ))}
     </div>
   );
