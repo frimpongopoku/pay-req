@@ -27,7 +27,8 @@ function InviteModal({ orgName, onClose }: { orgName: string; onClose: () => voi
 
   function buildMessage(e: string) {
     const url = typeof window !== 'undefined' ? window.location.origin : '';
-    return `Hi! You've been invited to join ${orgName || 'PayReq'} as a ${role}.\n\nSign in with your Google account (${e}) at:\n${url}/auth/signin\n\nYour access will be granted automatically.`;
+    const article = ['Admin', 'Employee'].includes(role) ? 'an' : 'a';
+    return `Hi! You've been invited to join ${orgName || 'PayReq'} as ${article} ${role}.\n\nSign in with your Google account (${e}) at:\n${url}/auth/signin\n\nYour access will be granted automatically.`;
   }
 
   function copyMessage() {
