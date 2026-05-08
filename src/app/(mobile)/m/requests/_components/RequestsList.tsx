@@ -9,10 +9,10 @@ type FilterId = 'all' | 'open' | 'receipts' | 'completed' | 'denied';
 
 const STAGES = ['SUBMITTED','APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'];
 
-function StagesMini({ stage, total = 6 }: { stage: number; total?: number }) {
+function StagesMini({ stage }: { stage: number }) {
   return (
     <div className="stages-mini">
-      {Array.from({ length: total }).map((_, i) => (
+      {STAGES.map((_, i) => (
         <div key={i} className={'s' + (i < stage ? ' done' : i === stage ? ' cur' : '')} />
       ))}
     </div>
