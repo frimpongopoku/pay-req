@@ -39,21 +39,22 @@ const EVENT_EMOJI: Record<SlackEvent, string> = {
 };
 
 function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '');
   const requestUrl = appUrl ? `${appUrl}/requests/${data.requestId}` : null;
+  const linkSuffix = requestUrl ? `  <${requestUrl}|Open ↗>` : '';
 
   let headerText = '';
   let bodyText = '';
 
   if (event === 'new_request') {
-    headerText = `${EVENT_EMOJI[event]} New request on *${data.assetName}*`;
+    headerText = `${EVENT_EMOJI[event]} New request on *${data.assetName}*${linkSuffix}`;
     bodyText = `*${data.title}*`;
   } else if (event === 'status_change') {
     const to = STATUS_LABELS[data.toStatus ?? ''] ?? data.toStatus ?? '';
-    headerText = `${EVENT_EMOJI[event]} ${data.requestId} → *${to}*`;
+    headerText = `${EVENT_EMOJI[event]} ${data.requestId} → *${to}*${linkSuffix}`;
     bodyText = `*${data.title}*`;
   } else {
-    headerText = `${EVENT_EMOJI[event]} Receipts submitted on *${data.requestId}*`;
+    headerText = `${EVENT_EMOJI[event]} Receipts submitted on *${data.requestId}*${linkSuffix}`;
     bodyText = `*${data.title}*`;
   }
 
@@ -74,7 +75,6 @@ function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
     },
     {
       type: 'section',
-      text: { type: 'mrkdwn', text: bodyText },
       fields,
     },
   ];
@@ -107,26 +107,16 @@ function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
     }
   }
 
-  if (requestUrl) {
-    blocks.push({
-      type: 'actions',
-      elements: [
-        {
-          type: 'button',
-          text: { type: 'plain_text', text: 'Open in PayReq ↗' },
-          url: requestUrl,
-          style: 'primary',
-        },
-      ],
-    });
-  } else {
-    blocks.push({
-      type: 'context',
-      elements: [
-        { type: 'mrkdwn', text: `🔗 *${data.requestId}* — set \`NEXT_PUBLIC_APP_URL\` in your environment to get a direct link here.` },
-      ],
-    });
+  if (!data.payeeDetails?.method) {
+    blocks.push({ type: 'divider' });
   }
+
+  blocks.push({
+    type: 'context',
+    elements: [
+      { type: 'mrkdwn', text: `*${data.requestId}*${requestUrl ? '' : ' — set `NEXT_PUBLIC_APP_URL` in Vercel env vars to get a direct link here'}` },
+    ],
+  });
 
   return blocks;
 }
