@@ -120,7 +120,7 @@ export function CreateAssetModal({ managers }: { managers: ManagerOption[] }) {
 
       {open && (
         <div className="modal-backdrop" onClick={handleClose}>
-          <div className="modal-panel glass asset-modal" onClick={e => e.stopPropagation()}>
+          <div className="modal-panel asset-modal" onClick={e => e.stopPropagation()}>
 
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>

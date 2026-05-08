@@ -131,6 +131,16 @@ export class PostgresRepository implements IRepository {
     return this.getOrg(id);
   }
 
+  async deleteOrg(id: string): Promise<void> {
+    const sql = db();
+    await sql`DELETE FROM invites  WHERE org_id = ${id}`;
+    await sql`DELETE FROM activity WHERE org_id = ${id}`;
+    await sql`DELETE FROM requests WHERE org_id = ${id}`;
+    await sql`DELETE FROM assets   WHERE org_id = ${id}`;
+    await sql`UPDATE users SET org_id = NULL WHERE org_id = ${id}`;
+    await sql`DELETE FROM organisations WHERE id = ${id}`;
+  }
+
   // ── Requests ──────────────────────────────────────────────────────────────
 
   async listRequests(orgId: string, filters?: RequestFilters): Promise<Request[]> {

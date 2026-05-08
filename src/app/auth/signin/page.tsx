@@ -54,7 +54,8 @@ export default function SignInPage() {
     <>
       <div className="app-bg" />
       <div style={{ minHeight: '100vh', position: 'relative', zIndex: 1, display: 'grid', placeItems: 'center', padding: 24 }}>
-        <div className="card glass-strong" style={{ width: '100%', maxWidth: 440 }}>
+        <div style={{ width: '100%', maxWidth: 440, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="card glass-strong">
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <div className="brand-mark" style={{ margin: '0 auto 12px' }} />
             <h1 className="h1" style={{ marginBottom: 6 }}>Welcome to PayReq</h1>
@@ -66,14 +67,10 @@ export default function SignInPage() {
             <button
               type="button"
               onClick={() => setIntent('admin')}
+              className={'auth-role-btn' + (intent === 'admin' ? ' active' : '')}
               style={{
-                padding: '14px 12px',
-                borderRadius: 12,
-                border: `2px solid ${intent === 'admin' ? 'var(--brand)' : 'var(--glass-border)'}`,
-                background: intent === 'admin' ? 'var(--brand-soft)' : 'rgba(255,255,255,0.6)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.15s',
+                border: `2px solid ${intent === 'admin' ? 'var(--brand)' : undefined}`,
+                background: intent === 'admin' ? 'var(--brand-soft)' : undefined,
               }}
             >
               <div style={{ fontSize: 20, marginBottom: 6 }}>🏢</div>
@@ -86,14 +83,10 @@ export default function SignInPage() {
             <button
               type="button"
               onClick={() => setIntent('employee')}
+              className={'auth-role-btn' + (intent === 'employee' ? ' active' : '')}
               style={{
-                padding: '14px 12px',
-                borderRadius: 12,
-                border: `2px solid ${intent === 'employee' ? 'var(--brand)' : 'var(--glass-border)'}`,
-                background: intent === 'employee' ? 'var(--brand-soft)' : 'rgba(255,255,255,0.6)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.15s',
+                border: `2px solid ${intent === 'employee' ? 'var(--brand)' : undefined}`,
+                background: intent === 'employee' ? 'var(--brand-soft)' : undefined,
               }}
             >
               <div style={{ fontSize: 20, marginBottom: 6 }}>👷</div>
@@ -124,6 +117,10 @@ export default function SignInPage() {
               {error}
             </div>
           )}
+        </div>
+        <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(15,23,42,0.35)', letterSpacing: '0.04em' }}>
+          PayReq v{process.env.NEXT_PUBLIC_APP_VERSION ?? '—'}
+        </div>
         </div>
       </div>
     </>

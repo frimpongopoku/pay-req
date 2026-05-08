@@ -48,6 +48,9 @@ export function Topbar({ userName, orgName }: { userName?: string; orgName: stri
         {I.search}
         <span>Search coming soon</span>
       </div>
+      <span className="small muted" style={{ whiteSpace: 'nowrap', fontSize: 11, opacity: 0.6 }}>
+        v{process.env.NEXT_PUBLIC_APP_VERSION ?? '—'}
+      </span>
       {userName && <span className="small muted" style={{ whiteSpace: 'nowrap' }}>{userName}</span>}
       <button className="btn ghost" onClick={handleSignOut} title="Sign out">{I.x}Sign out</button>
       <button className="btn ghost" title="Notifications" style={{ padding: 7 }}>{I.bell}</button>

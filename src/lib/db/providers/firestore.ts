@@ -199,4 +199,20 @@ export class FirestoreRepository implements IRepository {
   async deleteUser(id: string): Promise<void> {
     await fs().collection('users').doc(id).delete();
   }
+
+  async deleteOrg(id: string): Promise<void> {
+    const db = fs();
+    const collections = ['invites', 'activity', 'requests', 'assets'];
+    for (const col of collections) {
+      const snap = await db.collection(col).where('orgId', '==', id).get();
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+    const userSnap = await db.collection('users').where('orgId', '==', id).get();
+    const batch = db.batch();
+    userSnap.docs.forEach(d => batch.update(d.ref, { orgId: null }));
+    await batch.commit();
+    await db.collection('organisations').doc(id).delete();
+  }
 }

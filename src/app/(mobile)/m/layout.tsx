@@ -20,7 +20,12 @@ function TabBar() {
 export default async function MobileLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
   if (!user) redirect('/auth/signin');
-  if (!user.orgId) redirect('/m/pending');
+
+  // No org yet — render bare so /m/pending can show its own full-screen UI
+  // without causing an infinite redirect loop.
+  if (!user.orgId) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="mobile-shell" style={{ minHeight: '100vh' }}>

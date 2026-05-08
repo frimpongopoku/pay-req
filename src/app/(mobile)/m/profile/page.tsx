@@ -87,6 +87,10 @@ export default async function MobileProfilePage() {
         </div>
       </div>
 
+      <div style={{ paddingBottom: 16, textAlign: 'center', fontSize: 11, color: 'var(--m-ink-3)', letterSpacing: '0.04em' }}>
+        PayReq v{process.env.NEXT_PUBLIC_APP_VERSION ?? '—'}
+      </div>
+
       <div style={{ height: 100 }} />
     </>
   );

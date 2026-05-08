@@ -11,6 +11,8 @@ export interface IRepository {
   createOrg(data: Omit<Organisation, 'id'>): Promise<Organisation>;
   getOrg(id: string): Promise<Organisation | null>;
   updateOrg(id: string, patch: Partial<Omit<Organisation, 'id'>>): Promise<Organisation | null>;
+  /** Delete an org and all its data (requests, assets, users, activity, invites). */
+  deleteOrg(id: string): Promise<void>;
 
   // ── Requests ──────────────────────────────────────────────────────────────
   listRequests(orgId: string, filters?: RequestFilters): Promise<Request[]>;

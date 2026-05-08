@@ -284,7 +284,23 @@ export function RequestsTable({ requests, assetMap }: Props) {
           </div>
         )}
 
+        {/* ── Zero-state: org has no requests at all ── */}
+        {requests.length === 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '56px 24px', textAlign: 'center' }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg,var(--brand-soft),rgba(139,92,246,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>📥</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink-0)' }}>No requests yet</div>
+            <div className="muted small" style={{ maxWidth: 300, lineHeight: 1.6 }}>
+              Payment requests submitted by your team will show up here. Create the first one to get started.
+            </div>
+            <a href="/requests/new" className="btn primary" style={{ marginTop: 4 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New request
+            </a>
+          </div>
+        )}
+
         {/* ── Table ── */}
+        {requests.length > 0 && (
         <table className="tbl">
           <thead>
             <tr>
@@ -297,7 +313,7 @@ export function RequestsTable({ requests, assetMap }: Props) {
           <tbody>
             {paginated.length === 0 && (
               <tr><td colSpan={8} className="muted small" style={{ textAlign: 'center', padding: 32 }}>
-                {activeFilterCount > 0 ? 'No requests match the active filters.' : 'No requests match this filter.'}
+                {activeFilterCount > 0 ? 'No requests match the active filters.' : 'No requests match this tab.'}
               </td></tr>
             )}
             {paginated.map(r => {
@@ -343,8 +359,10 @@ export function RequestsTable({ requests, assetMap }: Props) {
             })}
           </tbody>
         </table>
+        )}
 
         {/* ── Pagination footer ── */}
+        {requests.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderTop: '1px solid var(--line)', flexWrap: 'wrap' }}>
           <span className="muted small" style={{ minWidth: 120 }}>
             {fullyFiltered.length === 0 ? 'No results' : `${startIdx}–${endIdx} of ${fullyFiltered.length}`}
@@ -378,6 +396,7 @@ export function RequestsTable({ requests, assetMap }: Props) {
             {PAGE_SIZES.map(s => <option key={s} value={s}>{s} per page</option>)}
           </select>
         </div>
+        )}
       </div>
     </>
   );

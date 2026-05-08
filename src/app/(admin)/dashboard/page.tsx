@@ -26,11 +26,12 @@ export default async function DashboardPage() {
     .filter(r => r.status !== 'DENIED')
     .reduce((sum, r) => sum + r.amount, 0);
 
+  const completedCount = requests.filter(r => r.status === 'COMPLETED').length;
   const kpis = [
-    { label: 'Open requests',   value: String(open.length),           delta: `${awaitingReview.length} awaiting review`, spark: [4,6,5,7,9,8,11,10,12,11,open.length],  color: 'var(--brand)' },
-    { label: 'Awaiting review', value: String(awaitingReview.length), delta: 'SLA 1.4 d',                                spark: [2,3,2,3,4,4,5,4,5,awaitingReview.length], color: 'var(--warn)' },
-    { label: 'Spend (MTD)',     value: `${orgCurrency} ${spendMTD.toLocaleString()}`, delta: '+12% vs Apr',                            spark: [3,4,5,7,6,8,9,11,12,14,16,18,spendMTD/2000], color: 'var(--info)' },
-    { label: 'Total requests',  value: String(requests.length),       delta: `${requests.filter(r=>r.status==='COMPLETED').length} completed`, spark: [3,4,5,5,6,6,7,7,8,requests.length], color: 'var(--good)' },
+    { label: 'Open requests',   value: String(open.length),           delta: `${awaitingReview.length} awaiting review`, spark: [0, open.length],            color: 'var(--brand)' },
+    { label: 'Awaiting review', value: String(awaitingReview.length), delta: 'needs attention',                          spark: [0, awaitingReview.length],   color: 'var(--warn)' },
+    { label: 'Spend (MTD)',     value: `${orgCurrency} ${spendMTD.toLocaleString()}`, delta: 'all non-denied requests',  spark: [0, Math.max(spendMTD, 1)],   color: 'var(--info)' },
+    { label: 'Total requests',  value: String(requests.length),       delta: `${completedCount} completed`,              spark: [0, Math.max(requests.length, 1)], color: 'var(--good)' },
   ];
 
   const recent = [...requests]
@@ -145,6 +146,14 @@ export default async function DashboardPage() {
               <Link href="/requests" className="btn ghost small">View all {I.arrowR}</Link>
             </div>
           </div>
+          {recent.length === 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '36px 0', textAlign: 'center' }}>
+              <div style={{ fontSize: 36, opacity: 0.2 }}>📋</div>
+              <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink-1)' }}>No requests yet</div>
+              <div className="muted small" style={{ maxWidth: 260 }}>Once your team starts submitting payment requests, they'll appear here.</div>
+              <Link href="/requests/new" className="btn primary" style={{ marginTop: 4 }}>{I.plus}Create first request</Link>
+            </div>
+          ) : (
           <table className="tbl">
             <thead>
               <tr>
@@ -172,6 +181,7 @@ export default async function DashboardPage() {
               })}
             </tbody>
           </table>
+          )}
         </div>
 
         {/* Activity feed */}
@@ -231,27 +241,35 @@ export default async function DashboardPage() {
             <h3>SLA performance</h3>
             <span className="sub">Time-in-stage by lifecycle</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 4 }}>
-            {[
-              { stage: 'Submitted → Review',   target: '24h',  actual: '18h',   ok: true,  pct: 75 },
-              { stage: 'Review → Approved',    target: '48h',  actual: '36h',   ok: true,  pct: 75 },
-              { stage: 'Approved → Paid',      target: '72h',  actual: '52h',   ok: true,  pct: 72 },
-              { stage: 'Paid → Receipts in',   target: '7 d',  actual: '5.2 d', ok: true,  pct: 74 },
-              { stage: 'Receipts → Completed', target: '24h',  actual: '38h',   ok: false, pct: 100 },
-            ].map((s, i) => (
-              <div key={i}>
-                <div className="row" style={{ marginBottom: 6 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>{s.stage}</div>
-                  <div className="spacer" />
-                  <div className="small muted">target {s.target}</div>
-                  <div className="small" style={{ color: s.ok ? 'var(--good)' : 'var(--bad)', fontWeight: 600, marginLeft: 8 }}>{s.actual}</div>
+          {completedCount === 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '28px 0', textAlign: 'center' }}>
+              <div style={{ fontSize: 28, opacity: 0.25 }}>⏱</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-1)' }}>No data yet</div>
+              <div className="muted small">SLA metrics will appear once requests have been completed.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 4 }}>
+              {[
+                { stage: 'Submitted → Review',   target: '24h',  actual: '18h',   ok: true,  pct: 75 },
+                { stage: 'Review → Approved',    target: '48h',  actual: '36h',   ok: true,  pct: 75 },
+                { stage: 'Approved → Paid',      target: '72h',  actual: '52h',   ok: true,  pct: 72 },
+                { stage: 'Paid → Receipts in',   target: '7 d',  actual: '5.2 d', ok: true,  pct: 74 },
+                { stage: 'Receipts → Completed', target: '24h',  actual: '38h',   ok: false, pct: 100 },
+              ].map((s, i) => (
+                <div key={i}>
+                  <div className="row" style={{ marginBottom: 6 }}>
+                    <div style={{ fontSize: 13, fontWeight: 500 }}>{s.stage}</div>
+                    <div className="spacer" />
+                    <div className="small muted">target {s.target}</div>
+                    <div className="small" style={{ color: s.ok ? 'var(--good)' : 'var(--bad)', fontWeight: 600, marginLeft: 8 }}>{s.actual}</div>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 3, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
+                    <div style={{ width: s.pct + '%', height: '100%', borderRadius: 3, background: s.ok ? 'linear-gradient(90deg,#34d399,#10b981)' : 'linear-gradient(90deg,#fb923c,#ef4444)' }} />
+                  </div>
                 </div>
-                <div style={{ height: 6, borderRadius: 3, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
-                  <div style={{ width: s.pct + '%', height: '100%', borderRadius: 3, background: s.ok ? 'linear-gradient(90deg,#34d399,#10b981)' : 'linear-gradient(90deg,#fb923c,#ef4444)' }} />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

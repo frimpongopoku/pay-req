@@ -5,11 +5,11 @@ import { I } from '@/components/ui/icons';
 import { Avatar } from '@/components/ui/Avatar';
 
 const navItems = [
-  { id: 'dashboard', href: '/dashboard',        label: 'Dashboard',      icon: I.chart },
-  { id: 'requests',  href: '/requests',          label: 'Requests',       icon: I.inbox, count: 14 },
-  { id: 'assets',    href: '/assets',            label: 'Assets',         icon: I.truck, count: 8 },
-  { id: 'users',     href: '/users',             label: 'People',         icon: I.users, count: 7 },
-  { id: 'insights',  href: '/insights',          label: 'Insights',       icon: I.chart },
+  { id: 'dashboard', href: '/dashboard', label: 'Dashboard', icon: I.chart },
+  { id: 'requests',  href: '/requests',  label: 'Requests',  icon: I.inbox },
+  { id: 'assets',    href: '/assets',    label: 'Assets',    icon: I.truck },
+  { id: 'users',     href: '/users',     label: 'People',    icon: I.users },
+  { id: 'insights',  href: '/insights',  label: 'Insights',  icon: I.chart },
 ];
 
 const settingsItems = [
@@ -55,7 +55,6 @@ export function Sidebar({
         >
           {item.icon}
           <span>{item.label}</span>
-          {item.count != null && <span className="count">{item.count}</span>}
         </Link>
       ))}
 
@@ -81,6 +80,9 @@ export function Sidebar({
             {userRole}{userDepot ? ` · ${userDepot}` : ''}
           </div>
         </div>
+      </div>
+      <div style={{ padding: '8px 12px 12px', fontSize: 10.5, color: 'var(--ink-4, var(--ink-3))', letterSpacing: '0.04em' }}>
+        PayReq v{process.env.NEXT_PUBLIC_APP_VERSION ?? '—'}
       </div>
     </aside>
   );

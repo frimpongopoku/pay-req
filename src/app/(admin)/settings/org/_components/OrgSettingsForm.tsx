@@ -1,7 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { I } from '@/components/ui/icons';
-import { saveOrgSettings } from '../actions';
+import { saveOrgSettings, deleteAccount, deleteOrganisation } from '../actions';
 import type { Organisation } from '@/lib/db';
 
 const CURRENCIES = [
@@ -14,10 +14,28 @@ const CURRENCIES = [
   { code: 'ZAR', label: 'ZAR — South African Rand' },
 ];
 
-export function OrgSettingsForm({ org }: { org: Organisation | null }) {
+export function OrgSettingsForm({ org, isOwner }: { org: Organisation | null; isOwner: boolean }) {
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [deleting, setDeleting] = useState<'account' | 'org' | null>(null);
+
+  function handleDeleteAccount() {
+    if (!confirm('Remove your user profile and sign out? Your organisation will remain.\n\nThis cannot be undone.')) return;
+    setDeleting('account');
+    startTransition(async () => { await deleteAccount(); });
+  }
+
+  function handleDeleteOrg() {
+    const orgName = org?.name ?? 'this organisation';
+    const typed = prompt(`Type the organisation name to confirm deletion:\n\n"${orgName}"\n\nAll requests, assets, users, and data will be permanently deleted.`);
+    if (typed?.trim() !== orgName) {
+      if (typed !== null) alert('Name did not match. Organisation not deleted.');
+      return;
+    }
+    setDeleting('org');
+    startTransition(async () => { await deleteOrganisation(); });
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -104,6 +122,51 @@ export function OrgSettingsForm({ org }: { org: Organisation | null }) {
               <input type="number" defaultValue="48" />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Danger Zone ── */}
+      <div className="card" style={{ marginTop: 24, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.03)' }}>
+        <div className="card-h" style={{ borderBottom: '1px solid rgba(239,68,68,0.15)', paddingBottom: 12, marginBottom: 0 }}>
+          <h3 style={{ color: '#dc2626' }}>Danger zone</h3>
+          <span className="sub">Destructive actions — these cannot be undone</span>
+        </div>
+        <div className="col" style={{ gap: 0, paddingTop: 4 }}>
+
+          <div className="row" style={{ padding: '14px 0', borderBottom: '1px solid rgba(239,68,68,0.1)', alignItems: 'flex-start', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 500 }}>Delete my account</div>
+              <div className="muted small" style={{ marginTop: 2 }}>Removes your user profile and signs you out. The organisation and all other data remain.</div>
+            </div>
+            <button
+              type="button"
+              className="btn ghost"
+              style={{ color: '#dc2626', borderColor: 'rgba(239,68,68,0.4)', flexShrink: 0 }}
+              onClick={handleDeleteAccount}
+              disabled={deleting !== null}
+            >
+              {deleting === 'account' ? 'Deleting…' : 'Delete my account'}
+            </button>
+          </div>
+
+          {isOwner && (
+            <div className="row" style={{ padding: '14px 0', alignItems: 'flex-start', gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 500 }}>Delete organisation</div>
+                <div className="muted small" style={{ marginTop: 2 }}>Permanently deletes <b>{org?.name ?? 'this organisation'}</b> and all its data — requests, assets, users, activity, and settings. You will be signed out.</div>
+              </div>
+              <button
+                type="button"
+                className="btn"
+                style={{ background: '#dc2626', color: '#fff', border: 'none', flexShrink: 0, opacity: deleting !== null ? 0.6 : 1 }}
+                onClick={handleDeleteOrg}
+                disabled={deleting !== null}
+              >
+                {deleting === 'org' ? 'Deleting…' : 'Delete organisation'}
+              </button>
+            </div>
+          )}
+
         </div>
       </div>
     </form>

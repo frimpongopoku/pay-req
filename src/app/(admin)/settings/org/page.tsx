@@ -5,6 +5,7 @@ import { OrgSettingsForm } from './_components/OrgSettingsForm';
 export default async function OrgSettingsPage() {
   const user = await getSessionUser();
   const org  = user?.orgId ? await getDb().getOrg(user.orgId) : null;
+  const isOwner = org?.ownerUid === user?.id;
 
   return (
     <div className="page">
@@ -12,7 +13,7 @@ export default async function OrgSettingsPage() {
         <h1 className="h1">Organisation</h1>
         <div className="muted small" style={{ marginTop: 4 }}>Manage your workspace settings</div>
       </div>
-      <OrgSettingsForm org={org} />
+      <OrgSettingsForm org={org} isOwner={isOwner} />
     </div>
   );
 }

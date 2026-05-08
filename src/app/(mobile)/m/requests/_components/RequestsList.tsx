@@ -95,11 +95,19 @@ export function RequestsList({ requests, assetMap }: Props) {
       </div>
 
       <div className="m-req-list">
-        {filtered.length === 0 && (
-          <div style={{ padding: '24px 22px', textAlign: 'center', color: 'var(--m-ink-3)', fontSize: 13 }}>
-            No requests here.
+        {requests.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 24px', textAlign: 'center' }}>
+            <div style={{ width: 52, height: 52, borderRadius: 14, background: 'var(--m-glass)', border: '1px solid rgba(15,23,42,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, boxShadow: 'var(--m-card-shadow)' }}>📋</div>
+            <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--m-ink-0)' }}>No requests yet</div>
+            <div style={{ fontSize: 12.5, color: 'var(--m-ink-3)', lineHeight: 1.6, maxWidth: 240 }}>
+              Tap the <b>+</b> button below to submit your first payment request.
+            </div>
           </div>
-        )}
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: '32px 22px', textAlign: 'center', color: 'var(--m-ink-3)', fontSize: 13 }}>
+            No requests match this filter.
+          </div>
+        ) : null}
         {filtered.map(r => {
           const stage = STAGES.indexOf(r.status === 'UNDER_REVIEW' ? 'SUBMITTED' : r.status);
           const asset = assetMap[r.asset];

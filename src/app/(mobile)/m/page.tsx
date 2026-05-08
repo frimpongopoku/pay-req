@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
@@ -18,7 +19,8 @@ function StagesMini({ stage, total = 6 }: { stage: number; total?: number }) {
 
 export default async function MobileHomePage() {
   const [user, db] = [await getSessionUser(), getDb()];
-  const orgId = user?.orgId ?? '';
+  if (!user?.orgId) redirect('/m/pending');
+  const orgId = user.orgId;
   const [allRequests, assets, org] = await Promise.all([
     db.listRequests(orgId),
     db.listAssets(orgId),

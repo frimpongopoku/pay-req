@@ -551,6 +551,25 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .dense .kpi { padding: 14px 16px; }
 .dense .kpi .value { font-size: 22px; }
 
+/* ─── Auth page role buttons ─── */
+.auth-role-btn {
+  padding: 14px 12px;
+  border-radius: 12px;
+  border: 2px solid var(--glass-border);
+  background: rgba(255,255,255,0.6);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+@media (hover: hover) {
+  .auth-role-btn:not(.active):hover {
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(99,102,241,0.3);
+    box-shadow: 0 2px 12px rgba(99,102,241,0.08);
+  }
+}
+
 /* ─── Asset modal + subtle motion ─── */
 .modal-backdrop {
   position: fixed;
@@ -574,6 +593,11 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   padding: 22px;
   max-height: 90vh;
   overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid rgba(226,232,240,0.9);
+  box-shadow: 0 24px 80px rgba(2,6,23,0.18), 0 4px 20px rgba(2,6,23,0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .modal-panel.asset-modal::-webkit-scrollbar { width: 4px; }
 .modal-panel.asset-modal::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
