@@ -41,21 +41,16 @@ const EVENT_EMOJI: Record<SlackEvent, string> = {
 function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '');
   const requestUrl = appUrl ? `${appUrl}/requests/${data.requestId}` : null;
-  const linkSuffix = requestUrl ? `  <${requestUrl}|Open ↗>` : '';
 
   let headerText = '';
-  let bodyText = '';
 
   if (event === 'new_request') {
-    headerText = `${EVENT_EMOJI[event]} New request on *${data.assetName}*${linkSuffix}`;
-    bodyText = `*${data.title}*`;
+    headerText = `${EVENT_EMOJI[event]} New request on *${data.assetName}*`;
   } else if (event === 'status_change') {
     const to = STATUS_LABELS[data.toStatus ?? ''] ?? data.toStatus ?? '';
-    headerText = `${EVENT_EMOJI[event]} ${data.requestId} → *${to}*${linkSuffix}`;
-    bodyText = `*${data.title}*`;
+    headerText = `${EVENT_EMOJI[event]} ${data.requestId} → *${to}*`;
   } else {
-    headerText = `${EVENT_EMOJI[event]} Receipts submitted on *${data.requestId}*${linkSuffix}`;
-    bodyText = `*${data.title}*`;
+    headerText = `${EVENT_EMOJI[event]} Receipts submitted on *${data.requestId}*`;
   }
 
   const fields: object[] = [
@@ -72,6 +67,10 @@ function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
     {
       type: 'section',
       text: { type: 'mrkdwn', text: headerText },
+    },
+    {
+      type: 'section',
+      text: { type: 'mrkdwn', text: `*${data.title}*` },
     },
     {
       type: 'section',
@@ -111,10 +110,17 @@ function buildBlocks(event: SlackEvent, data: SlackNotifyData) {
     blocks.push({ type: 'divider' });
   }
 
+  if (requestUrl) {
+    blocks.push({
+      type: 'section',
+      text: { type: 'mrkdwn', text: `👉 *<${requestUrl}|Review this request in PayReq>*` },
+    });
+  }
+
   blocks.push({
     type: 'context',
     elements: [
-      { type: 'mrkdwn', text: `*${data.requestId}*${requestUrl ? '' : ' — set `NEXT_PUBLIC_APP_URL` in Vercel env vars to get a direct link here'}` },
+      { type: 'mrkdwn', text: requestUrl ? `${data.requestId} · ${requestUrl}` : `${data.requestId} — set NEXT_PUBLIC_APP_URL in Vercel env vars to get a direct link` },
     ],
   });
 
@@ -138,7 +144,7 @@ export async function notify(
     const res = await fetch(org.slackWebhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ blocks }),
+      body: JSON.stringify({ blocks, unfurl_links: false, unfurl_media: false }),
       cache: 'no-store',
     });
     if (!res.ok) {

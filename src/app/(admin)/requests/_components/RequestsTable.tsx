@@ -319,10 +319,11 @@ export function RequestsTable({ requests, assetMap }: Props) {
             {paginated.map(r => {
               const asset = assetMap[r.asset];
               const isCompleted = r.status === 'COMPLETED';
+              const isExcluded = r.excluded || asset?.excluded;
               return (
                 <tr
                   key={r.id}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', opacity: isExcluded ? 0.75 : 1 }}
                   onClick={() => router.push(`/requests/${r.id}`)}
                 >
                   <td onClick={e => e.stopPropagation()}><input type="checkbox" /></td>
@@ -330,7 +331,10 @@ export function RequestsTable({ requests, assetMap }: Props) {
                     <div className="row" style={{ gap: 8 }}>
                       {r.priority === 'high' && <span style={{ color: 'var(--bad)' }} title="High priority">{I.flag}</span>}
                       <div>
-                        <div style={{ fontWeight: 500 }}>{r.title}</div>
+                        <div className="row" style={{ gap: 6, alignItems: 'center' }}>
+                          <span style={{ fontWeight: 500 }}>{r.title}</span>
+                          {isExcluded && <span style={{ display: 'inline-flex', alignItems: 'center', padding: '1px 6px', borderRadius: 999, background: 'rgba(239,68,68,0.08)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', fontSize: 10, fontWeight: 600, flexShrink: 0 }}>Excluded</span>}
+                        </div>
                         <div className="id">{r.id}{r.attachments.length > 0 && <> · {r.attachments.length} file{r.attachments.length !== 1 ? 's' : ''}</>}</div>
                       </div>
                     </div>

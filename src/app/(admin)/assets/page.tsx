@@ -84,7 +84,12 @@ export default async function AssetsPage() {
                   {I[TYPE_ICON[a.type ?? 'other']]}
                 </div>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontWeight: 500 }}>{a.name}</div>
+                  <div className="row" style={{ gap: 6, alignItems: 'center' }}>
+                    <div style={{ fontWeight: 500 }}>{a.name}</div>
+                    {a.excluded && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '1px 7px', borderRadius: 999, background: 'rgba(239,68,68,0.08)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', fontSize: 10.5, fontWeight: 600, flexShrink: 0 }}>Excluded</span>
+                    )}
+                  </div>
                   <div className="row" style={{ gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
                     {a.tag && <span className="chip" style={{ fontSize: 11 }}>{a.tag}</span>}
                     <span className="chip" style={{ fontSize: 11, textTransform: 'capitalize' }}>{a.type ?? 'other'}</span>

@@ -110,7 +110,7 @@ function computeMonthlyBuckets(requests: Request[]) {
   return buckets;
 }
 
-export default async function InsightsPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
+export default async function InsightsPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string; assets?: string }> }) {
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
   const cache = getOrgCache(orgId);
@@ -121,7 +121,8 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
   ]);
   const orgCurrency = org?.currency ?? 'GHS';
 
-  const { from = '', to = '' } = await searchParams;
+  const { from = '', to = '', assets: assetsParam = '' } = await searchParams;
+  const selectedAssetIds = assetsParam ? assetsParam.split(',').filter(Boolean) : [];
 
   const activeAssets = assets.filter(a => !a.excluded);
   const activeAssetIds = new Set(activeAssets.map(a => a.id));
@@ -129,6 +130,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
   const requests = allRequests.filter(r => {
     if (r.excluded) return false;
     if (!activeAssetIds.has(r.asset)) return false;
+    if (selectedAssetIds.length > 0 && !selectedAssetIds.includes(r.asset)) return false;
     if (!r.submittedAt) return true;
     const d = new Date(r.submittedAt);
     if (from && d < new Date(from)) return false;
@@ -186,7 +188,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
           <div className="muted small" style={{ marginTop: 4 }}>Trends across requests, assets and lifecycle stages</div>
         </div>
         <div className="spacer" />
-        <InsightsControls requests={requests} assets={activeAssets} currency={orgCurrency} from={from} to={to} />
+        <InsightsControls requests={requests} assets={activeAssets} currency={orgCurrency} from={from} to={to} selectedAssets={selectedAssetIds} />
       </div>
 
       {/* KPI row */}

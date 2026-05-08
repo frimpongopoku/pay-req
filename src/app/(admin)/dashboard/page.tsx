@@ -56,6 +56,19 @@ export default async function DashboardPage() {
   }).filter(a => a.n > 0).sort((a, b) => b.n - a.n).slice(0, 5);
   const maxN = assetStats[0]?.n ?? 1;
 
+  const requesterStats = active.reduce<Record<string, { count: number; spend: number }>>((acc, r) => {
+    if (r.status === 'DENIED') return acc;
+    (acc[r.requester] ??= { count: 0, spend: 0 });
+    acc[r.requester].count++;
+    acc[r.requester].spend += r.amount;
+    return acc;
+  }, {});
+  const topRequesters = Object.entries(requesterStats)
+    .sort((a, b) => b[1].spend - a[1].spend)
+    .slice(0, 5)
+    .map(([name, s]) => ({ name, ...s }));
+  const maxRequesterSpend = topRequesters[0]?.spend ?? 1;
+
   return (
     <div className="page">
       <div className="row" style={{ marginBottom: 18 }}>
@@ -238,49 +251,32 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* SLA performance */}
+        {/* Top requesters */}
         <div className="card glass">
           <div className="card-h">
-            <h3>SLA performance</h3>
-            <span className="sub">Approval speed by stage</span>
+            <h3>Top requesters</h3>
+            <span className="sub">By spend · excl. denied</span>
           </div>
-          <div style={{ fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.55, marginBottom: 14, padding: '8px 10px', background: 'rgba(99,102,241,0.04)', borderRadius: 8, border: '1px solid rgba(99,102,241,0.1)' }}>
-            <strong style={{ color: 'var(--ink-2)' }}>What is this?</strong> SLA (Service Level Agreement) tracks how quickly each step in the payment lifecycle is completed. Each bar shows the target time for that stage. <span style={{ color: 'var(--good)', fontWeight: 500 }}>Green</span> = within target, <span style={{ color: 'var(--bad)', fontWeight: 500 }}>red</span> = overdue.
-          </div>
-          {completedCount === 0 ? (
+          {topRequesters.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '28px 0', textAlign: 'center' }}>
-              <div style={{ fontSize: 28, opacity: 0.25 }}>⏱</div>
+              <div style={{ fontSize: 28, opacity: 0.25 }}>👤</div>
               <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-1)' }}>No data yet</div>
-              <div className="muted small">SLA metrics will appear once requests have been completed.</div>
+              <div className="muted small">Requester spend will appear once requests are submitted.</div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 4 }}>
-              {[
-                { stage: 'Submitted → Approved',  desc: 'Time from submission to approval decision', target: '48h',  actual: '36h',   ok: true,  pct: 75 },
-                { stage: 'Approved → Paid',        desc: 'Time from approval to payment being made',  target: '72h',  actual: '52h',   ok: true,  pct: 72 },
-                { stage: 'Paid → Receipts in',     desc: 'Time from payment to receipt upload',       target: '7 d',  actual: '5.2 d', ok: true,  pct: 74 },
-                { stage: 'Receipts → Completed',   desc: 'Time from receipts to final sign-off',      target: '24h',  actual: '38h',   ok: false, pct: 100 },
-              ].map((s, i) => (
-                <div key={i} title={s.desc}>
-                  <div className="row" style={{ marginBottom: 6 }}>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 500 }}>{s.stage}</div>
-                      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 1 }}>{s.desc}</div>
-                    </div>
-                    <div className="spacer" />
-                    <div style={{ textAlign: 'right' }}>
-                      <div className="small muted">target {s.target}</div>
-                      <div className="small" style={{ color: s.ok ? 'var(--good)' : 'var(--bad)', fontWeight: 600 }}>{s.actual}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {topRequesters.map((r, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 48px 90px', gap: 10, alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 500 }}>{r.name}</div>
+                    <div style={{ height: 6, marginTop: 6, borderRadius: 3, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
+                      <div style={{ width: Math.round(r.spend / maxRequesterSpend * 100) + '%', height: '100%', background: 'linear-gradient(90deg, var(--info), #0ea5e9)', borderRadius: 3 }} />
                     </div>
                   </div>
-                  <div style={{ height: 6, borderRadius: 3, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
-                    <div style={{ width: s.pct + '%', height: '100%', borderRadius: 3, background: s.ok ? 'linear-gradient(90deg,#34d399,#10b981)' : 'linear-gradient(90deg,#fb923c,#ef4444)' }} />
-                  </div>
+                  <div className="muted small num" style={{ fontVariantNumeric: 'tabular-nums' }}>{r.count} req{r.count !== 1 ? 's' : ''}</div>
+                  <div className="num" style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 500, fontSize: 12.5 }}>{orgCurrency} {r.spend.toLocaleString()}</div>
                 </div>
               ))}
-              <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 4, fontStyle: 'italic' }}>
-                Sample data — live stage timing metrics coming soon.
-              </div>
             </div>
           )}
         </div>

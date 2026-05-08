@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { I } from '@/components/ui/icons';
 import type { Request, Asset } from '@/lib/db';
 
@@ -10,6 +10,7 @@ interface Props {
   currency: string;
   from: string;
   to: string;
+  selectedAssets: string[];
 }
 
 function downloadCSV(content: string, filename: string) {
@@ -20,23 +21,43 @@ function downloadCSV(content: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export function InsightsControls({ requests, assets, currency, from, to }: Props) {
+export function InsightsControls({ requests, assets, currency, from, to, selectedAssets }: Props) {
   const router = useRouter();
   const params = useSearchParams();
   const [localFrom, setLocalFrom] = useState(from);
   const [localTo, setLocalTo] = useState(to);
+  const [localAssets, setLocalAssets] = useState<string[]>(selectedAssets);
+  const [assetOpen, setAssetOpen] = useState(false);
+  const assetRef = useRef<HTMLDivElement>(null);
 
-  function applyRange() {
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (assetRef.current && !assetRef.current.contains(e.target as Node)) {
+        setAssetOpen(false);
+      }
+    }
+    if (assetOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [assetOpen]);
+
+  function applyFilters() {
     const p = new URLSearchParams(params.toString());
     if (localFrom) p.set('from', localFrom); else p.delete('from');
     if (localTo) p.set('to', localTo); else p.delete('to');
+    if (localAssets.length > 0) p.set('assets', localAssets.join(',')); else p.delete('assets');
     router.push(`/insights?${p.toString()}`);
+    setAssetOpen(false);
   }
 
-  function clearRange() {
+  function clearFilters() {
     setLocalFrom('');
     setLocalTo('');
+    setLocalAssets([]);
     router.push('/insights');
+  }
+
+  function toggleAsset(id: string) {
+    setLocalAssets(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   }
 
   function handleExportCSV() {
@@ -74,6 +95,10 @@ export function InsightsControls({ requests, assets, currency, from, to }: Props
       ? `${from} to ${to}`
       : from ? `From ${from}` : to ? `Up to ${to}` : 'All time';
 
+    const assetLabel = selectedAssets.length > 0
+      ? `${selectedAssets.length} asset${selectedAssets.length !== 1 ? 's' : ''} selected`
+      : 'All assets';
+
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>PayReq Insights</title><style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
       body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #0f172a; padding: 40px; font-size: 13px; }
@@ -96,7 +121,7 @@ export function InsightsControls({ requests, assets, currency, from, to }: Props
       @media print { body { padding: 24px; } }
     </style></head><body>
       <h1>PayReq — Insights Report</h1>
-      <div class="meta">Generated ${new Date().toLocaleString()} · Period: ${rangeLabel} · ${total} requests</div>
+      <div class="meta">Generated ${new Date().toLocaleString()} · Period: ${rangeLabel} · ${assetLabel} · ${total} requests</div>
       <div class="kpis">
         <div class="kpi"><div class="label">Total requests</div><div class="value">${total}</div><div class="sub">${completed} completed</div></div>
         <div class="kpi"><div class="label">Approval rate</div><div class="value">${approvalRate}%</div><div class="sub">${approved} approved</div></div>
@@ -135,23 +160,76 @@ export function InsightsControls({ requests, assets, currency, from, to }: Props
     setTimeout(() => { w.print(); }, 400);
   }
 
-  const hasRange = !!(from || to);
+  const hasFilters = !!(from || to || selectedAssets.length > 0);
+  const assetLabel = localAssets.length === 0
+    ? 'All assets'
+    : localAssets.length === 1
+      ? (assets.find(a => a.id === localAssets[0])?.name.split(' — ')[0] ?? '1 asset')
+      : `${localAssets.length} assets`;
 
   return (
     <div className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+      {/* Asset picker */}
+      <div ref={assetRef} style={{ position: 'relative' }}>
+        <button
+          className={'btn ghost' + (localAssets.length > 0 ? ' active' : '')}
+          style={localAssets.length > 0 ? { background: 'rgba(99,102,241,0.08)', borderColor: 'rgba(99,102,241,0.3)', color: 'var(--brand)' } : {}}
+          onClick={() => setAssetOpen(v => !v)}
+        >
+          {I.truck}{assetLabel}
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style={{ marginLeft: 2, opacity: 0.5 }}>
+            <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        {assetOpen && (
+          <div style={{ position: 'absolute', top: 'calc(100% + 4px)', right: 0, zIndex: 50, minWidth: 220, maxHeight: 280, overflowY: 'auto', background: 'white', border: '1px solid var(--line)', borderRadius: 10, boxShadow: '0 4px 24px rgba(15,23,42,0.12)', padding: 6 }}>
+            <div style={{ padding: '4px 8px 8px', borderBottom: '1px solid var(--line)', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Filter by asset</div>
+              {localAssets.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setLocalAssets([])}
+                  style={{ fontSize: 11, color: 'var(--bad)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: 3, fontFamily: 'inherit' }}
+                >
+                  Clear selection
+                </button>
+              )}
+            </div>
+            {assets.map(a => (
+              <label
+                key={a.id}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 7, cursor: 'pointer', fontSize: 13, userSelect: 'none', background: localAssets.includes(a.id) ? 'var(--brand-soft)' : 'transparent' }}
+              >
+                <input
+                  type="checkbox"
+                  checked={localAssets.includes(a.id)}
+                  onChange={() => toggleAsset(a.id)}
+                  style={{ accentColor: 'var(--brand)', margin: 0, flexShrink: 0 }}
+                />
+                <span style={{ flex: 1, fontWeight: localAssets.includes(a.id) ? 500 : 400, color: localAssets.includes(a.id) ? 'var(--brand)' : 'var(--ink-0)' }}>
+                  {a.name.split(' — ')[0]}
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Date range */}
       <input
         type="date" value={localFrom} onChange={e => setLocalFrom(e.target.value)}
-        className="field" style={{ padding: '6px 10px', fontSize: 13, borderRadius: 8, border: '1px solid var(--line)', background: 'white', fontFamily: 'inherit', cursor: 'pointer' }}
+        style={{ padding: '6px 10px', fontSize: 13, borderRadius: 8, border: '1px solid var(--line)', background: 'white', fontFamily: 'inherit', cursor: 'pointer', color: localFrom ? 'var(--ink-0)' : 'var(--ink-3)' }}
         title="From date"
       />
       <span className="muted small">—</span>
       <input
         type="date" value={localTo} onChange={e => setLocalTo(e.target.value)}
-        className="field" style={{ padding: '6px 10px', fontSize: 13, borderRadius: 8, border: '1px solid var(--line)', background: 'white', fontFamily: 'inherit', cursor: 'pointer' }}
+        style={{ padding: '6px 10px', fontSize: 13, borderRadius: 8, border: '1px solid var(--line)', background: 'white', fontFamily: 'inherit', cursor: 'pointer', color: localTo ? 'var(--ink-0)' : 'var(--ink-3)' }}
         title="To date"
       />
-      <button className="btn ghost" onClick={applyRange}>{I.check}Apply</button>
-      {hasRange && <button className="btn ghost" onClick={clearRange}>{I.x}Clear</button>}
+
+      <button className="btn ghost" onClick={applyFilters}>{I.check}Apply</button>
+      {hasFilters && <button className="btn ghost" onClick={clearFilters} style={{ color: 'var(--bad)' }}>{I.x}Clear</button>}
       <button className="btn ghost" onClick={handleExportCSV}>{I.download}CSV</button>
       <button className="btn ghost" onClick={handleExportPDF}>{I.download}PDF</button>
     </div>
