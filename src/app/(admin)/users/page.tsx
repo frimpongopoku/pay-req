@@ -5,6 +5,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { I } from '@/components/ui/icons';
 import { InviteButton } from './_components/InviteModal';
 import { RevokeButton } from './_components/RevokeButton';
+import { CopyInviteButton } from './_components/CopyInviteButton';
 import { UserMenu } from './_components/UserMenu';
 
 export default async function UsersPage() {
@@ -113,7 +114,12 @@ export default async function UsersPage() {
                     </td>
                     <td className="small">{inv.invitedBy}</td>
                     <td className="muted small">{new Date(inv.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
-                    <td><RevokeButton id={inv.id} /></td>
+                    <td>
+                      <div className="row" style={{ gap: 6, justifyContent: 'flex-end' }}>
+                        <CopyInviteButton email={inv.email} role={inv.role} orgName={org?.name ?? ''} />
+                        <RevokeButton id={inv.id} />
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
