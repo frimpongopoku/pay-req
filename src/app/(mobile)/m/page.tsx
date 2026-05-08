@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { getOrgCache } from '@/lib/db/cached';
 import { MPill } from '@/components/ui/Pill';
 import { MI } from '@/components/ui/icons';
 
@@ -18,13 +19,14 @@ function StagesMini({ stage, total = 6 }: { stage: number; total?: number }) {
 }
 
 export default async function MobileHomePage() {
-  const [user, db] = [await getSessionUser(), getDb()];
+  const user = await getSessionUser();
   if (!user?.orgId) redirect('/m/pending');
   const orgId = user.orgId;
+  const cache = getOrgCache(orgId);
   const [allRequests, assets, org] = await Promise.all([
-    db.listRequests(orgId),
-    db.listAssets(orgId),
-    db.getOrg(orgId),
+    cache.listRequests(),
+    cache.listAssets(),
+    cache.getOrg(),
   ]);
   const orgCurrency = org?.currency ?? 'GHS';
 
@@ -53,7 +55,8 @@ export default async function MobileHomePage() {
             </div>
           )}
         </div>
-        <div className="m-icon-btn">{MI.bell}</div>
+        {/* Notifications — not yet implemented
+        <div className="m-icon-btn">{MI.bell}</div> */}
       </div>
 
       {/* Hero — most recent active request */}

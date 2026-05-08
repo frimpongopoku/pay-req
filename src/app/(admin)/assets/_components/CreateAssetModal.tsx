@@ -197,7 +197,7 @@ export function CreateAssetModal({ managers }: { managers: ManagerOption[] }) {
                 <div className="field">
                   <label>Name <span style={{ color: 'var(--bad)' }}>*</span></label>
                   <input name="name" placeholder={
-                    assetType === 'car' ? 'e.g. Toyota Hilux Fleet 04' :
+                    assetType === 'car' ? 'e.g. Toyota Hilux Unit 04' :
                     assetType === 'building' ? 'e.g. Head Office Annex' :
                     assetType === 'device' ? 'e.g. MacBook Pro — Design Team' :
                     assetType === 'machine' ? 'e.g. Excavator Unit 7' :
@@ -335,7 +335,7 @@ export function CreateAssetModal({ managers }: { managers: ManagerOption[] }) {
                   <Hash size={12} strokeWidth={2} style={{ color: 'var(--ink-3)' }} />
                   Slack channel <span style={{ color: 'var(--ink-3)', fontWeight: 400 }}>(optional)</span>
                 </label>
-                <input name="slack" placeholder="fleet-maintenance" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5 }} />
+                <input name="slack" placeholder="ops-requests" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5 }} />
               </div>
 
               {error && (

@@ -17,7 +17,7 @@ export default async function PendingPage() {
           <div className="muted" style={{ lineHeight: 1.6, marginBottom: 24 }}>
             Hi <b>{user.name.split(' ')[0]}</b> — your account exists but you haven't been added to an organisation yet.
             <br /><br />
-            Ask your fleet manager or admin to add you to their PayReq organisation, then sign in again.
+            Ask your admin to add you to their PayReq organisation, then sign in again.
           </div>
           <div style={{ display: 'grid', gap: 10 }}>
             <PendingSignOut />

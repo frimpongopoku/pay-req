@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { invalidateOrgCache } from '@/lib/db/cached';
 
 export async function saveOrgSettings(formData: FormData) {
   const user = await getSessionUser();
@@ -15,6 +16,7 @@ export async function saveOrgSettings(formData: FormData) {
   if (!name) return { ok: false, error: 'Organisation name is required.' };
 
   await getDb().updateOrg(user.orgId, { name, currency });
+  invalidateOrgCache(user.orgId);
   revalidatePath('/settings/org');
   return { ok: true };
 }

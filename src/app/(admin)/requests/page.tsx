@@ -1,16 +1,17 @@
 import Link from 'next/link';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { getOrgCache } from '@/lib/db/cached';
 import { I } from '@/components/ui/icons';
 import { RequestsTable } from './_components/RequestsTable';
 
 export default async function RequestsPage() {
-  const db = getDb();
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
+  const cache = getOrgCache(orgId);
   const [requests, assets] = await Promise.all([
-    db.listRequests(orgId),
-    db.listAssets(orgId),
+    cache.listRequests(),
+    cache.listAssets(),
   ]);
 
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a]));
@@ -21,7 +22,7 @@ export default async function RequestsPage() {
         <div>
           <h1 className="h1">Requests</h1>
           <div className="muted small" style={{ marginTop: 4 }}>
-            {requests.length} request{requests.length !== 1 ? 's' : ''} across {assets.length} fleet assets
+            {requests.length} request{requests.length !== 1 ? 's' : ''} across {assets.length} asset{assets.length !== 1 ? 's' : ''}
           </div>
         </div>
         <div className="spacer" />

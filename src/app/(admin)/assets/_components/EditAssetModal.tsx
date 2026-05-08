@@ -161,7 +161,7 @@ export function EditAssetModal({ asset, managers, onClose }: Props) {
               <Hash size={12} strokeWidth={2} style={{ color: 'var(--ink-3)' }} />
               Slack channel <span style={{ color: 'var(--ink-3)', fontWeight: 400 }}>(optional)</span>
             </label>
-            <input name="slack" defaultValue={asset.slack ?? ''} placeholder="fleet-maintenance" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5 }} />
+            <input name="slack" defaultValue={asset.slack ?? ''} placeholder="ops-requests" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5 }} />
           </div>
 
           {error && (

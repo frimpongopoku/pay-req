@@ -1,5 +1,6 @@
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { getOrgCache } from '@/lib/db/cached';
 import { I } from '@/components/ui/icons';
 import { CreateAssetModal } from './_components/CreateAssetModal';
 import { AssetMenu } from './_components/AssetMenu';
@@ -13,14 +14,14 @@ const TYPE_COLOR: Record<AssetType, string> = {
 };
 
 export default async function AssetsPage() {
-  const db = getDb();
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
+  const cache = getOrgCache(orgId);
   const [assets, requests, users, org] = await Promise.all([
-    db.listAssets(orgId),
-    db.listRequests(orgId),
-    db.listUsers(orgId),
-    db.getOrg(orgId),
+    cache.listAssets(),
+    cache.listRequests(),
+    cache.listUsers(),
+    cache.getOrg(),
   ]);
   const orgCurrency = org?.currency ?? 'GHS';
   const managers = users
@@ -47,12 +48,25 @@ export default async function AssetsPage() {
         <div>
           <h1 className="h1">Assets</h1>
           <div className="muted small" style={{ marginTop: 4 }}>
-            {assets.length} fleet entities · trucks, trailers, yard equipment
+            {assets.length} asset{assets.length !== 1 ? 's' : ''} in your organisation
           </div>
         </div>
         <div className="spacer" />
         <CreateAssetModal managers={managers} />
       </div>
+
+      {assets.length === 0 && (
+        <div className="card glass" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '64px 24px', textAlign: 'center' }}>
+          <div style={{ width: 60, height: 60, borderRadius: 18, background: 'linear-gradient(135deg,var(--brand-soft),rgba(139,92,246,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>🏗️</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink-0)' }}>No assets yet</div>
+          <div className="muted small" style={{ maxWidth: 320, lineHeight: 1.6 }}>
+            Assets are the things your team submits payment requests against — vehicles, buildings, devices, machines, or anything else. Add your first one to get started.
+          </div>
+          <div style={{ marginTop: 4 }}>
+            <CreateAssetModal managers={managers} />
+          </div>
+        </div>
+      )}
 
       <div className="grid g-3">
         {assets.map((a, i) => {

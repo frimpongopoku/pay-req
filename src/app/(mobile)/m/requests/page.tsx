@@ -1,13 +1,15 @@
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { getOrgCache } from '@/lib/db/cached';
 import { RequestsList } from './_components/RequestsList';
 
 export default async function MobileRequestsPage() {
-  const [user, db] = [await getSessionUser(), getDb()];
+  const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
+  const cache = getOrgCache(orgId);
   const [allRequests, assets] = await Promise.all([
-    db.listRequests(orgId),
-    db.listAssets(orgId),
+    cache.listRequests(),
+    cache.listAssets(),
   ]);
 
   const myRequests = allRequests

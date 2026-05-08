@@ -1,5 +1,6 @@
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { getOrgCache } from '@/lib/db/cached';
 import { Avatar } from '@/components/ui/Avatar';
 import { I } from '@/components/ui/icons';
 import { InviteButton } from './_components/InviteModal';
@@ -7,14 +8,14 @@ import { RevokeButton } from './_components/RevokeButton';
 import { UserMenu } from './_components/UserMenu';
 
 export default async function UsersPage() {
-  const db = getDb();
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
+  const cache = getOrgCache(orgId);
   const [users, requests, invites, org] = await Promise.all([
-    db.listUsers(orgId),
-    db.listRequests(orgId),
-    db.listInvites(orgId),
-    orgId ? db.getOrg(orgId) : null,
+    cache.listUsers(),
+    cache.listRequests(),
+    cache.listInvites(),
+    cache.getOrg(),
   ]);
 
   // Count requests per requester name (requests store requester as a name string)

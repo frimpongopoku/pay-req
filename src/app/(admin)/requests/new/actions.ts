@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { notify } from '@/lib/slack';
+import { invalidateOrgCache } from '@/lib/db/cached';
 import type { Priority, PayeeDetails } from '@/lib/db';
 
 function formatDate(iso: string): string {
@@ -65,6 +66,7 @@ export async function createRequest(formData: FormData) {
     tag: 'submit',
   });
 
+  invalidateOrgCache(user.orgId);
   revalidatePath('/requests');
   revalidatePath('/dashboard');
 

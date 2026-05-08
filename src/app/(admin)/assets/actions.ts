@@ -3,12 +3,14 @@
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { invalidateOrgCache } from '@/lib/db/cached';
 import type { AssetType } from '@/lib/db/types';
 
 export async function deleteAsset(id: string) {
   const user = await getSessionUser();
   if (!user?.orgId) return { ok: false, error: 'Not authorised.' };
   await getDb().deleteAsset(id);
+  invalidateOrgCache(user.orgId);
   revalidatePath('/assets');
   revalidatePath('/dashboard');
   return { ok: true };
@@ -37,6 +39,7 @@ export async function updateAsset(id: string, formData: FormData) {
     slack: slackRaw || null,
   });
 
+  invalidateOrgCache(user.orgId);
   revalidatePath('/assets');
   revalidatePath('/dashboard');
   revalidatePath('/requests/new');
@@ -76,6 +79,7 @@ export async function createAsset(formData: FormData) {
     slack: slackRaw || null,
   });
 
+  invalidateOrgCache(user.orgId);
   revalidatePath('/assets');
   revalidatePath('/requests/new');
   revalidatePath('/m/create');

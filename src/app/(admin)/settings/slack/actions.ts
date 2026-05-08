@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
 import { testWebhook } from '@/lib/slack';
+import { invalidateOrgCache } from '@/lib/db/cached';
 import type { SlackEvents } from '@/lib/db';
 
 export async function saveSlackSettings(formData: FormData) {
@@ -24,6 +25,7 @@ export async function saveSlackSettings(formData: FormData) {
     slackEvents,
   });
 
+  invalidateOrgCache(user.orgId);
   revalidatePath('/settings/slack');
 }
 

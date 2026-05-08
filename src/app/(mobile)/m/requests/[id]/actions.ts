@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { invalidateOrgCache } from '@/lib/db/cached';
 
 export async function addMobileAttachments(requestId: string, urls: string[]) {
   if (!urls.length) return;
@@ -16,6 +17,7 @@ export async function addMobileAttachments(requestId: string, urls: string[]) {
     what: `uploaded ${urls.length} receipt${urls.length !== 1 ? 's' : ''} for ${requestId}`,
     tag: 'attach',
   });
+  invalidateOrgCache(user.orgId);
   revalidatePath(`/m/requests/${requestId}`);
   revalidatePath('/m');
 }

@@ -1,14 +1,16 @@
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { getOrgCache } from '@/lib/db/cached';
 import { MI } from '@/components/ui/icons';
 import { SignOutButton } from './_components/SignOutButton';
 
 export default async function MobileProfilePage() {
-  const [user, db] = [await getSessionUser(), getDb()];
+  const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
+  const cache = getOrgCache(orgId);
   const [allRequests, org] = await Promise.all([
-    db.listRequests(orgId),
-    db.getOrg(orgId),
+    cache.listRequests(),
+    cache.getOrg(),
   ]);
   const orgCurrency = org?.currency ?? 'GHS';
 
@@ -79,7 +81,7 @@ export default async function MobileProfilePage() {
       <div className="m-card">
         <h4>Support</h4>
         <div className="small" style={{ color: 'var(--m-ink-2)', lineHeight: 1.5 }}>
-          For payment issues or urgent route-impacting requests, contact fleet ops.
+          For payment issues or urgent requests, contact your administrator.
         </div>
         <div style={{ display: 'grid', gap: 10, marginTop: 12 }}>
           <button className="btn" style={{ justifyContent: 'flex-start' }}>{MI.msg}Message ops</button>

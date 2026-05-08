@@ -12,14 +12,14 @@ export interface ActivityItem {
 }
 
 export const ASSETS: Omit<Asset, 'orgId'>[] = [
-  { id: 'a1', name: 'Truck 042 — Freightliner M2', tag: 'East depot', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#fleet-east' },
-  { id: 'a2', name: 'Van 117 — Mercedes Sprinter', tag: 'Last-mile', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#fleet-east' },
-  { id: 'a3', name: 'Truck 028 — Volvo VNL', tag: 'Long-haul', type: 'car', details: {}, tags: [], managers: ['Diego Romero'], slack: '#fleet-haul' },
+  { id: 'a1', name: 'Truck 042 — Freightliner M2', tag: 'East depot', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#ops-east' },
+  { id: 'a2', name: 'Van 117 — Mercedes Sprinter', tag: 'Last-mile', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#ops-east' },
+  { id: 'a3', name: 'Truck 028 — Volvo VNL', tag: 'Long-haul', type: 'car', details: {}, tags: [], managers: ['Diego Romero'], slack: '#ops-haul' },
   { id: 'a4', name: 'Van 089 — Ford Transit', tag: 'Last-mile', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: null },
-  { id: 'a5', name: 'Truck 051 — Kenworth T680', tag: 'Long-haul', type: 'car', details: {}, tags: [], managers: ['Diego Romero', 'Sam Whitt'], slack: '#fleet-haul' },
-  { id: 'a6', name: 'Trailer 14 — Reefer 53ft', tag: 'Cold-chain', type: 'machine', details: {}, tags: [], managers: ['Sam Whitt'], slack: '#fleet-cold' },
+  { id: 'a5', name: 'Truck 051 — Kenworth T680', tag: 'Long-haul', type: 'car', details: {}, tags: [], managers: ['Diego Romero', 'Sam Whitt'], slack: '#ops-haul' },
+  { id: 'a6', name: 'Trailer 14 — Reefer 53ft', tag: 'Cold-chain', type: 'machine', details: {}, tags: [], managers: ['Sam Whitt'], slack: '#ops-cold' },
   { id: 'a7', name: 'Yard tractor — TICO Pro-Spotter', tag: 'Yard', type: 'machine', details: {}, tags: [], managers: ['Maya Patel'], slack: null },
-  { id: 'a8', name: 'Box truck 003 — Isuzu NPR', tag: 'Local', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#fleet-east' },
+  { id: 'a8', name: 'Box truck 003 — Isuzu NPR', tag: 'Local', type: 'car', details: {}, tags: [], managers: ['Maya Patel'], slack: '#ops-east' },
 ];
 
 export const REQUESTS: Omit<Request, 'orgId'>[] = [
@@ -79,7 +79,7 @@ export const REQUESTS: Omit<Request, 'orgId'>[] = [
 export const ACTIVITY: ActivityItem[] = [
   { who: 'Maya Patel',   what: 'moved REQ-2418 to Under review', ts: '4 min ago', tag: 'review' },
   { who: 'Tomás Reyes',  what: 'submitted REQ-2418 with 3 attachments', ts: '1 h ago', tag: 'submit' },
-  { who: 'Slack',        what: 'posted to #fleet-east — new request', ts: '1 h ago', tag: 'slack', avHue: 280 },
+  { who: 'Slack',        what: 'posted to #ops-east — new request', ts: '1 h ago', tag: 'slack', avHue: 280 },
   { who: 'Diego Romero', what: 'approved REQ-2417', ts: '2 h ago', tag: 'approve' },
   { who: 'Aisha Khan',   what: 'uploaded receipts on REQ-2415', ts: '4 h ago', tag: 'receipt' },
   { who: 'Park Min-jun', what: 'marked REQ-2414 as Completed', ts: 'Yesterday', tag: 'complete' },

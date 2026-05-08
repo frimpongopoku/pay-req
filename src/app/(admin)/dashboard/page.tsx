@@ -1,20 +1,21 @@
 import Link from 'next/link';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { getOrgCache } from '@/lib/db/cached';
 import { Avatar } from '@/components/ui/Avatar';
 import { Pill } from '@/components/ui/Pill';
 import { Spark } from '@/components/ui/Spark';
 import { I } from '@/components/ui/icons';
 
 export default async function DashboardPage() {
-  const db = getDb();
   const currentUser = await getSessionUser();
   const orgId = currentUser?.orgId ?? '';
+  const cache = getOrgCache(orgId);
   const [requests, assets, activity, org] = await Promise.all([
-    db.listRequests(orgId),
-    db.listAssets(orgId),
-    db.listActivity(orgId, 6),
-    db.getOrg(orgId),
+    cache.listRequests(),
+    cache.listAssets(),
+    cache.listActivity(6),
+    cache.getOrg(),
   ]);
   const orgCurrency = org?.currency ?? 'GHS';
 

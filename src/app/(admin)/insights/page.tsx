@@ -4,6 +4,8 @@ import { Spark } from '@/components/ui/Spark';
 import { I } from '@/components/ui/icons';
 import type { Request, Asset, RequestStatus } from '@/lib/db';
 import { AssetSpendCharts } from './_components/AssetSpendCharts';
+import { InsightsExportButton } from './_components/InsightsExportButton';
+import { getOrgCache } from '@/lib/db/cached';
 
 const STATUS_COLORS: Partial<Record<RequestStatus, string>> = {
   SUBMITTED:          '#94a3b8',
@@ -109,13 +111,13 @@ function computeMonthlyBuckets(requests: Request[]) {
 }
 
 export default async function InsightsPage() {
-  const db = getDb();
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
+  const cache = getOrgCache(orgId);
   const [requests, assets, org] = await Promise.all([
-    db.listRequests(orgId),
-    db.listAssets(orgId),
-    db.getOrg(orgId),
+    cache.listRequests(),
+    cache.listAssets(),
+    cache.getOrg(),
   ]);
   const orgCurrency = org?.currency ?? 'GHS';
 
@@ -169,7 +171,7 @@ export default async function InsightsPage() {
           <div className="muted small" style={{ marginTop: 4 }}>Trends across requests, assets and lifecycle stages</div>
         </div>
         <div className="spacer" />
-        <button className="btn">{I.download}Export</button>
+        <InsightsExportButton requests={requests} assets={assets} currency={orgCurrency} />
       </div>
 
       {/* KPI row */}

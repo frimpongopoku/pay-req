@@ -44,16 +44,18 @@ export function Topbar({ userName, orgName }: { userName?: string; orgName: stri
           </span>
         ))}
       </div>
-      <div className="search disabled" aria-disabled="true" title="Search coming soon">
+      {/* Search — not yet implemented
+      <div className="search disabled" aria-disabled="true">
         {I.search}
         <span>Search coming soon</span>
-      </div>
+      </div> */}
       <span className="small muted" style={{ whiteSpace: 'nowrap', fontSize: 11, opacity: 0.6 }}>
         v{process.env.NEXT_PUBLIC_APP_VERSION ?? '—'}
       </span>
       {userName && <span className="small muted" style={{ whiteSpace: 'nowrap' }}>{userName}</span>}
       <button className="btn ghost" onClick={handleSignOut} title="Sign out">{I.x}Sign out</button>
-      <button className="btn ghost" title="Notifications" style={{ padding: 7 }}>{I.bell}</button>
+      {/* Notifications — not yet implemented
+      <button className="btn ghost" title="Notifications" style={{ padding: 7 }}>{I.bell}</button> */}
     </div>
   );
 }

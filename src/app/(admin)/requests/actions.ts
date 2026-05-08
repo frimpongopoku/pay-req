@@ -2,11 +2,13 @@
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { invalidateOrgCache } from '@/lib/db/cached';
 
 export async function deleteRequest(id: string) {
   const user = await getSessionUser();
   if (!user?.orgId) return;
   await getDb().deleteRequest(id);
+  invalidateOrgCache(user.orgId);
   revalidatePath('/requests');
   revalidatePath('/dashboard');
 }
@@ -27,6 +29,7 @@ export async function amendRequest(id: string, formData: FormData) {
   }
 
   await getDb().updateRequest(id, { title, amount, currency, deadline, purpose, payee });
+  invalidateOrgCache(user.orgId);
   revalidatePath('/requests');
   revalidatePath(`/requests/${id}`);
   revalidatePath('/dashboard');

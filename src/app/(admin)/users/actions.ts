@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSessionUser } from '@/lib/session';
+import { invalidateOrgCache } from '@/lib/db/cached';
 import type { Invite } from '@/lib/db';
 
 export async function inviteUser(
@@ -36,6 +37,7 @@ export async function inviteUser(
     createdAt: new Date().toISOString(),
   });
 
+  invalidateOrgCache(user.orgId);
   revalidatePath('/users');
   return { ok: true };
 }
@@ -44,6 +46,7 @@ export async function revokeInvite(id: string) {
   const user = await getSessionUser();
   if (!user?.orgId) return;
   await getDb().deleteInvite(id);
+  invalidateOrgCache(user.orgId);
   revalidatePath('/users');
 }
 
@@ -51,6 +54,7 @@ export async function removeUser(targetId: string) {
   const currentUser = await getSessionUser();
   if (!currentUser?.orgId || currentUser.id === targetId) return;
   await getDb().deleteUser(targetId);
+  invalidateOrgCache(currentUser.orgId);
   revalidatePath('/users');
 }
 
@@ -61,5 +65,6 @@ export async function changeUserRole(targetId: string, role: 'Admin' | 'Manager'
   const target = await db.getUser(targetId);
   if (!target || target.orgId !== currentUser.orgId) return;
   await db.upsertUser(targetId, { ...target, role });
+  invalidateOrgCache(currentUser.orgId);
   revalidatePath('/users');
 }
