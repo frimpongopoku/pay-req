@@ -53,6 +53,7 @@ export interface Request {
   attachments: string[];
   priority: Priority;
   additionalDetails?: string;
+  excluded?: boolean;
 }
 
 export interface ActivityItem {

@@ -5,7 +5,7 @@ import type { Request, Asset, RequestStatus } from '@/lib/db';
 import { Avatar } from '@/components/ui/Avatar';
 import { Pill } from '@/components/ui/Pill';
 import { I } from '@/components/ui/icons';
-import { advanceStatus, rewindStatus, denyRequest, addAttachments } from '../actions';
+import { advanceStatus, rewindStatus, denyRequest, addAttachments, toggleExcluded } from '../actions';
 import { FileUpload } from '@/components/ui/FileUpload';
 
 const LIFECYCLE_STAGES: RequestStatus[] = [
@@ -77,6 +77,17 @@ export function RequestDetail({ request: r, asset, assetSpend, assetOpenCount, o
           </div>
         </div>
         <div className="spacer" />
+        {r.excluded && (
+          <span className="pill denied" style={{ alignSelf: 'center' }}><span className="dot" />Excluded from stats</span>
+        )}
+        <button
+          className="btn ghost"
+          onClick={() => startTransition(() => toggleExcluded(r.id, r.excluded ?? false))}
+          disabled={isPending}
+          title={r.excluded ? 'Re-include in stats' : 'Exclude from all stats and graphs'}
+        >
+          {r.excluded ? 'Include in stats' : 'Exclude from stats'}
+        </button>
         <button className="btn" onClick={handleRewind} disabled={!canRewind || isPending}>
           {I.arrowDn}Rewind
         </button>

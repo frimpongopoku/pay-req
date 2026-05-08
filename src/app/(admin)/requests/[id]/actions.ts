@@ -117,6 +117,15 @@ export async function denyRequest(id: string) {
   }
 }
 
+export async function toggleExcluded(id: string, currentlyExcluded: boolean) {
+  const [db, user] = [getDb(), await getSessionUser()];
+  if (!user?.orgId) return;
+  const next = !currentlyExcluded;
+  await db.updateRequest(id, { excluded: next });
+  await db.addActivity(user.orgId, { who: user.name, what: `${next ? 'excluded' : 'included'} ${id} from stats`, tag: next ? 'deny' : 'advance' });
+  invalidate(id, user.orgId);
+}
+
 export async function addAttachments(id: string, urls: string[]) {
   if (!urls.length) return;
   const [db, user] = [getDb(), await getSessionUser()];

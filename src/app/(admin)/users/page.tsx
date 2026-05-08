@@ -71,7 +71,7 @@ export default async function UsersPage() {
                 </td>
                 <td className="small">{u.depot}</td>
                 <td className="num">{reqCountByName[u.name] ?? 0}</td>
-                <td><UserMenu userId={u.id} currentRole={u.role} isSelf={u.id === user?.id} /></td>
+                <td>{u.id !== user?.id && <UserMenu userId={u.id} currentRole={u.role} isSelf={false} />}</td>
               </tr>
             ))}
           </tbody>

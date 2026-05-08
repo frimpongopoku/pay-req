@@ -4,7 +4,7 @@ import { Spark } from '@/components/ui/Spark';
 import { I } from '@/components/ui/icons';
 import type { Request, Asset, RequestStatus } from '@/lib/db';
 import { AssetSpendCharts } from './_components/AssetSpendCharts';
-import { InsightsExportButton } from './_components/InsightsExportButton';
+import { InsightsControls } from './_components/InsightsControls';
 import { getOrgCache } from '@/lib/db/cached';
 
 const STATUS_COLORS: Partial<Record<RequestStatus, string>> = {
@@ -110,16 +110,27 @@ function computeMonthlyBuckets(requests: Request[]) {
   return buckets;
 }
 
-export default async function InsightsPage() {
+export default async function InsightsPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
   const user = await getSessionUser();
   const orgId = user?.orgId ?? '';
   const cache = getOrgCache(orgId);
-  const [requests, assets, org] = await Promise.all([
+  const [allRequests, assets, org] = await Promise.all([
     cache.listRequests(),
     cache.listAssets(),
     cache.getOrg(),
   ]);
   const orgCurrency = org?.currency ?? 'GHS';
+
+  const { from = '', to = '' } = await searchParams;
+
+  const requests = allRequests.filter(r => {
+    if (r.excluded) return false;
+    if (!r.submittedAt) return true;
+    const d = new Date(r.submittedAt);
+    if (from && d < new Date(from)) return false;
+    if (to && d > new Date(to + 'T23:59:59')) return false;
+    return true;
+  });
 
   const total = requests.length;
   const approved = requests.filter(r => ['APPROVED','PAID','RECEIPTS_SUBMITTED','COMPLETED'].includes(r.status)).length;
@@ -171,7 +182,7 @@ export default async function InsightsPage() {
           <div className="muted small" style={{ marginTop: 4 }}>Trends across requests, assets and lifecycle stages</div>
         </div>
         <div className="spacer" />
-        <InsightsExportButton requests={requests} assets={assets} currency={orgCurrency} />
+        <InsightsControls requests={requests} assets={assets} currency={orgCurrency} from={from} to={to} />
       </div>
 
       {/* KPI row */}

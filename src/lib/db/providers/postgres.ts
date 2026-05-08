@@ -35,7 +35,7 @@ function relativeTime(date: Date): string {
 const REQUEST_COL: Record<string, string> = {
   orgId: 'org_id', requesterUid: 'requester_uid',
   submittedAt: 'submitted_at', additionalDetails: 'additional_details',
-  payeeDetails: 'payee_details',
+  payeeDetails: 'payee_details', excluded: 'excluded',
 };
 const ASSET_COL: Record<string, string> = { orgId: 'org_id', details: 'details', tags: 'tags' };
 const USER_COL: Record<string, string> = { orgId: 'org_id' };
@@ -87,6 +87,7 @@ function rowToRequest(r: any): Request {
     attachments: r.attachments ?? [], priority: r.priority,
     additionalDetails: r.additional_details ?? undefined,
     payeeDetails: r.payee_details ?? undefined,
+    excluded: r.excluded ?? false,
   };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

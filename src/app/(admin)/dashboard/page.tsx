@@ -21,13 +21,14 @@ export default async function DashboardPage() {
 
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a]));
 
-  const open = requests.filter(r => !['COMPLETED', 'DENIED'].includes(r.status));
-  const awaitingReview = requests.filter(r => r.status === 'SUBMITTED');
-  const spendMTD = requests
+  const active = requests.filter(r => !r.excluded);
+  const open = active.filter(r => !['COMPLETED', 'DENIED'].includes(r.status));
+  const awaitingReview = active.filter(r => r.status === 'SUBMITTED');
+  const spendMTD = active
     .filter(r => r.status !== 'DENIED')
     .reduce((sum, r) => sum + r.amount, 0);
 
-  const completedCount = requests.filter(r => r.status === 'COMPLETED').length;
+  const completedCount = active.filter(r => r.status === 'COMPLETED').length;
   const kpis = [
     { label: 'Open requests',   value: String(open.length),           delta: `${awaitingReview.length} awaiting review`, spark: [0, open.length],            color: 'var(--brand)' },
     { label: 'Awaiting review', value: String(awaitingReview.length), delta: 'needs attention',                          spark: [0, awaitingReview.length],   color: 'var(--warn)' },
@@ -35,14 +36,14 @@ export default async function DashboardPage() {
     { label: 'Total requests',  value: String(requests.length),       delta: `${completedCount} completed`,              spark: [0, Math.max(requests.length, 1)], color: 'var(--good)' },
   ];
 
-  const recent = [...requests]
+  const recent = [...active]
     .sort((a, b) => b.submitted.localeCompare(a.submitted))
     .slice(0, 5);
 
-  const needsReview      = requests.filter(r => r.status === 'SUBMITTED');
-  const awaitingReceipts = requests.filter(r => r.status === 'PAID');
+  const needsReview      = active.filter(r => r.status === 'SUBMITTED');
+  const awaitingReceipts = active.filter(r => r.status === 'PAID');
 
-  const reqsByAsset = requests.reduce<Record<string, typeof requests>>((acc, r) => {
+  const reqsByAsset = active.reduce<Record<string, typeof active>>((acc, r) => {
     if (r.status !== 'DENIED') (acc[r.asset] ??= []).push(r);
     return acc;
   }, {});
@@ -59,11 +60,10 @@ export default async function DashboardPage() {
         <div>
           <h1 className="h1">Good morning{currentUser ? `, ${currentUser.name.split(' ')[0]}` : ''}</h1>
           <div className="muted small" style={{ marginTop: 4 }}>
-            {awaitingReview.length} request{awaitingReview.length !== 1 ? 's' : ''} need your review
+            {awaitingReview.length} request{awaitingReview.length !== 1 ? 's' : ''} need{awaitingReview.length === 1 ? 's' : ''} your review
           </div>
         </div>
         <div className="spacer" />
-        <button className="btn ghost">{I.download}Export</button>
         <Link href="/requests/new" className="btn primary">{I.plus}New request</Link>
       </div>
 
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
         <div className="card glass" style={{ marginBottom: 16, padding: 0, overflow: 'hidden' }}>
           <div className="card-h" style={{ padding: '14px 18px 10px', borderBottom: '1px solid var(--line)' }}>
             <h3>Action required</h3>
-            <span className="sub">{needsReview.length + awaitingReceipts.length} item{(needsReview.length + awaitingReceipts.length) !== 1 ? 's' : ''} need attention</span>
+            <span className="sub">{needsReview.length + awaitingReceipts.length} item{(needsReview.length + awaitingReceipts.length) !== 1 ? 's' : ''} need{(needsReview.length + awaitingReceipts.length) === 1 ? 's' : ''} attention</span>
           </div>
 
           {needsReview.length > 0 && (
