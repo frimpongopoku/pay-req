@@ -1,5 +1,6 @@
 'use client';
 import { useState, useTransition, useRef, KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { Car, Building2, Laptop, Cog, Package, X, Check, Hash } from 'lucide-react';
 import { updateAsset } from '../actions';
 import type { Asset, AssetType } from '@/lib/db/types';
@@ -53,9 +54,9 @@ export function EditAssetModal({ asset, managers, onClose }: Props) {
     else if (e.key === 'Backspace' && !tagInput && tags.length) setTags(prev => prev.slice(0, -1));
   }
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-panel glass asset-modal" onClick={e => e.stopPropagation()}>
+      <div className="modal-panel asset-modal" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${typeConfig.color}22, ${typeConfig.color}44)`, border: `1px solid ${typeConfig.color}33`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: typeConfig.color, flexShrink: 0 }}>
@@ -176,6 +177,7 @@ export function EditAssetModal({ asset, managers, onClose }: Props) {
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
