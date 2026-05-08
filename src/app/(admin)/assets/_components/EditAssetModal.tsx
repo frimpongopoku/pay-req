@@ -39,6 +39,7 @@ export function EditAssetModal({ asset, managers, onClose }: Props) {
   const [details, setDetails] = useState<Record<string, string>>((asset.details as Record<string, string>) ?? {});
   const [tags, setTags] = useState<string[]>(asset.tags ?? []);
   const [tagInput, setTagInput] = useState('');
+  const [excluded, setExcluded] = useState(asset.excluded ?? false);
   const tagRef = useRef<HTMLInputElement>(null);
 
   const typeConfig = ASSET_TYPES.find(t => t.value === assetType)!;
@@ -78,6 +79,7 @@ export function EditAssetModal({ asset, managers, onClose }: Props) {
           fd.set('type', assetType);
           fd.set('details', JSON.stringify(details));
           fd.set('tags', JSON.stringify(tags));
+          fd.set('excluded', String(excluded));
           startTransition(async () => {
             const res = await updateAsset(asset.id, fd);
             if (!res?.ok) { setError(res?.error ?? 'Could not save changes.'); return; }
@@ -163,6 +165,20 @@ export function EditAssetModal({ asset, managers, onClose }: Props) {
               Slack channel <span style={{ color: 'var(--ink-3)', fontWeight: 400 }}>(optional)</span>
             </label>
             <input name="slack" defaultValue={asset.slack ?? ''} placeholder="ops-requests" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5 }} />
+          </div>
+
+          {/* Exclude from stats */}
+          <div
+            onClick={() => setExcluded(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 9, marginBottom: 14, cursor: 'pointer', background: excluded ? 'rgba(239,68,68,0.05)' : 'rgba(15,23,42,0.03)', border: `1px solid ${excluded ? 'rgba(239,68,68,0.2)' : 'var(--line-strong)'}`, transition: 'all 150ms' }}
+          >
+            <div style={{ width: 16, height: 16, borderRadius: 4, border: `1.5px solid ${excluded ? '#ef4444' : 'var(--line-strong)'}`, background: excluded ? '#ef4444' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 150ms' }}>
+              {excluded && <Check size={10} strokeWidth={3} color="white" />}
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: excluded ? 'var(--bad)' : 'var(--ink-1)' }}>Exclude from stats &amp; insights</div>
+              <div style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 1 }}>This asset won&apos;t appear in charts, graphs, or spend totals</div>
+            </div>
           </div>
 
           {error && (

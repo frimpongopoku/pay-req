@@ -32,11 +32,14 @@ export async function updateAsset(id: string, formData: FormData) {
   let tags: string[] = [];
   try { tags = JSON.parse(String(formData.get('tags') ?? '[]')); } catch { tags = []; }
 
+  const excluded = formData.get('excluded') === 'true';
+
   if (!name) return { ok: false, error: 'Asset name is required.' };
 
   await getDb().updateAsset(id, {
     name, tag, type, details, tags, managers,
     slack: slackRaw || null,
+    excluded,
   });
 
   invalidateOrgCache(user.orgId);

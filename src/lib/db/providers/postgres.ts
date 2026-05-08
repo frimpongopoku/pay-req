@@ -37,7 +37,7 @@ const REQUEST_COL: Record<string, string> = {
   submittedAt: 'submitted_at', additionalDetails: 'additional_details',
   payeeDetails: 'payee_details', excluded: 'excluded',
 };
-const ASSET_COL: Record<string, string> = { orgId: 'org_id', details: 'details', tags: 'tags' };
+const ASSET_COL: Record<string, string> = { orgId: 'org_id', details: 'details', tags: 'tags', excluded: 'excluded' };
 const USER_COL: Record<string, string> = { orgId: 'org_id' };
 
 function toSnake(obj: Record<string, unknown>, map: Record<string, string>) {
@@ -73,6 +73,7 @@ function rowToAsset(r: any): Asset {
     details: r.details ?? {},
     tags: r.tags ?? [],
     managers: r.managers ?? [], slack: r.slack ?? null,
+    excluded: r.excluded ?? false,
   };
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

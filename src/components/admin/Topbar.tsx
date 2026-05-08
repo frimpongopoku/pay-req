@@ -44,11 +44,7 @@ export function Topbar({ userName, orgName }: { userName?: string; orgName: stri
           </span>
         ))}
       </div>
-      {/* Search — not yet implemented
-      <div className="search disabled" aria-disabled="true">
-        {I.search}
-        <span>Search coming soon</span>
-      </div> */}
+      <div className="spacer" />
       <span className="small muted" style={{ whiteSpace: 'nowrap', fontSize: 11, opacity: 0.6 }}>
         v{process.env.NEXT_PUBLIC_APP_VERSION ?? '—'}
       </span>

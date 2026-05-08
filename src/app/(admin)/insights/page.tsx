@@ -123,8 +123,12 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
 
   const { from = '', to = '' } = await searchParams;
 
+  const activeAssets = assets.filter(a => !a.excluded);
+  const activeAssetIds = new Set(activeAssets.map(a => a.id));
+
   const requests = allRequests.filter(r => {
     if (r.excluded) return false;
+    if (!activeAssetIds.has(r.asset)) return false;
     if (!r.submittedAt) return true;
     const d = new Date(r.submittedAt);
     if (from && d < new Date(from)) return false;
@@ -149,7 +153,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
   })).filter(a => a.spend > 0).sort((a, b) => b.spend - a.spend).slice(0, 5);
   const maxSpend = assetSpend[0]?.spend ?? 1;
 
-  const assetSpendOverTime = computeAssetSpendByMonth(requests, assets);
+  const assetSpendOverTime = computeAssetSpendByMonth(requests, activeAssets);
   const monthly = computeMonthlyBuckets(requests);
   const STAGE_COLORS: Partial<Record<RequestStatus, string>> = {
     SUBMITTED: 'rgba(148,163,184,0.85)',
@@ -182,7 +186,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
           <div className="muted small" style={{ marginTop: 4 }}>Trends across requests, assets and lifecycle stages</div>
         </div>
         <div className="spacer" />
-        <InsightsControls requests={requests} assets={assets} currency={orgCurrency} from={from} to={to} />
+        <InsightsControls requests={requests} assets={activeAssets} currency={orgCurrency} from={from} to={to} />
       </div>
 
       {/* KPI row */}

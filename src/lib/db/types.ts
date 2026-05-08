@@ -20,6 +20,7 @@ export interface Asset {
   tags: string[];
   managers: string[];
   slack: string | null;
+  excluded?: boolean;
 }
 
 export interface PayeeDetails {

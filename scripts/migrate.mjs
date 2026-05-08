@@ -104,6 +104,7 @@ await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS details JSONB NOT NULL DEF
 await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS tags TEXT[] NOT NULL DEFAULT '{}'`;
 await sql`ALTER TABLE requests ADD COLUMN IF NOT EXISTS payee_details JSONB NOT NULL DEFAULT '{}'`;
 await sql`ALTER TABLE requests ADD COLUMN IF NOT EXISTS excluded BOOLEAN NOT NULL DEFAULT FALSE`;
+await sql`ALTER TABLE assets   ADD COLUMN IF NOT EXISTS excluded BOOLEAN NOT NULL DEFAULT FALSE`;
 
 await sql.end();
 console.log('Migration complete.');

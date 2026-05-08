@@ -20,8 +20,10 @@ export default async function DashboardPage() {
   const orgCurrency = org?.currency ?? 'GHS';
 
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a]));
+  const activeAssets = assets.filter(a => !a.excluded);
+  const activeAssetIds = new Set(activeAssets.map(a => a.id));
 
-  const active = requests.filter(r => !r.excluded);
+  const active = requests.filter(r => !r.excluded && activeAssetIds.has(r.asset));
   const open = active.filter(r => !['COMPLETED', 'DENIED'].includes(r.status));
   const awaitingReview = active.filter(r => r.status === 'SUBMITTED');
   const spendMTD = active
@@ -48,7 +50,7 @@ export default async function DashboardPage() {
     return acc;
   }, {});
 
-  const assetStats = assets.map(a => {
+  const assetStats = activeAssets.map(a => {
     const aReqs = reqsByAsset[a.id] ?? [];
     return { name: a.name, n: aReqs.length, spend: aReqs.reduce((s, r) => s + r.amount, 0) };
   }).filter(a => a.n > 0).sort((a, b) => b.n - a.n).slice(0, 5);
@@ -240,7 +242,10 @@ export default async function DashboardPage() {
         <div className="card glass">
           <div className="card-h">
             <h3>SLA performance</h3>
-            <span className="sub">Time-in-stage by lifecycle</span>
+            <span className="sub">Approval speed by stage</span>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.55, marginBottom: 14, padding: '8px 10px', background: 'rgba(99,102,241,0.04)', borderRadius: 8, border: '1px solid rgba(99,102,241,0.1)' }}>
+            <strong style={{ color: 'var(--ink-2)' }}>What is this?</strong> SLA (Service Level Agreement) tracks how quickly each step in the payment lifecycle is completed. Each bar shows the target time for that stage. <span style={{ color: 'var(--good)', fontWeight: 500 }}>Green</span> = within target, <span style={{ color: 'var(--bad)', fontWeight: 500 }}>red</span> = overdue.
           </div>
           {completedCount === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '28px 0', textAlign: 'center' }}>
@@ -251,24 +256,31 @@ export default async function DashboardPage() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 4 }}>
               {[
-                { stage: 'Submitted → Review',   target: '24h',  actual: '18h',   ok: true,  pct: 75 },
-                { stage: 'Review → Approved',    target: '48h',  actual: '36h',   ok: true,  pct: 75 },
-                { stage: 'Approved → Paid',      target: '72h',  actual: '52h',   ok: true,  pct: 72 },
-                { stage: 'Paid → Receipts in',   target: '7 d',  actual: '5.2 d', ok: true,  pct: 74 },
-                { stage: 'Receipts → Completed', target: '24h',  actual: '38h',   ok: false, pct: 100 },
+                { stage: 'Submitted → Approved',  desc: 'Time from submission to approval decision', target: '48h',  actual: '36h',   ok: true,  pct: 75 },
+                { stage: 'Approved → Paid',        desc: 'Time from approval to payment being made',  target: '72h',  actual: '52h',   ok: true,  pct: 72 },
+                { stage: 'Paid → Receipts in',     desc: 'Time from payment to receipt upload',       target: '7 d',  actual: '5.2 d', ok: true,  pct: 74 },
+                { stage: 'Receipts → Completed',   desc: 'Time from receipts to final sign-off',      target: '24h',  actual: '38h',   ok: false, pct: 100 },
               ].map((s, i) => (
-                <div key={i}>
+                <div key={i} title={s.desc}>
                   <div className="row" style={{ marginBottom: 6 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500 }}>{s.stage}</div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 500 }}>{s.stage}</div>
+                      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 1 }}>{s.desc}</div>
+                    </div>
                     <div className="spacer" />
-                    <div className="small muted">target {s.target}</div>
-                    <div className="small" style={{ color: s.ok ? 'var(--good)' : 'var(--bad)', fontWeight: 600, marginLeft: 8 }}>{s.actual}</div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div className="small muted">target {s.target}</div>
+                      <div className="small" style={{ color: s.ok ? 'var(--good)' : 'var(--bad)', fontWeight: 600 }}>{s.actual}</div>
+                    </div>
                   </div>
                   <div style={{ height: 6, borderRadius: 3, background: 'rgba(15,23,42,0.06)', overflow: 'hidden' }}>
                     <div style={{ width: s.pct + '%', height: '100%', borderRadius: 3, background: s.ok ? 'linear-gradient(90deg,#34d399,#10b981)' : 'linear-gradient(90deg,#fb923c,#ef4444)' }} />
                   </div>
                 </div>
               ))}
+              <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 4, fontStyle: 'italic' }}>
+                Sample data — live stage timing metrics coming soon.
+              </div>
             </div>
           )}
         </div>
